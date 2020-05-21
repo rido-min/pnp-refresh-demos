@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SimpleThermostat": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=st01;SharedAccessKey=CprWVxaspzwn0cZMXskbd7ncHNR1ek8NwTmTVkWAxwY=\""
+    }
+  }
+}
