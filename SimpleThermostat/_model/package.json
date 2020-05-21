@@ -1,0 +1,9 @@
+{
+  "name": "@digital-twins/com-example-simplethermostat",
+  "version": "1.0.0",
+  "models" : ["simplethermostat.json"],
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
