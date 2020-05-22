@@ -1,0 +1,96 @@
+body {
+  font: 10px "Segoe UI", "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin-bottom: 10px;
+}
+
+.elbowRoom {
+  margin: 10px;
+}
+
+.connectedDevice {
+  animation-name: newDevice;
+  animation-duration: 10s;
+}
+
+@keyframes newDevice {
+  0% {
+    color: black;
+  }
+  25% {
+    color: red;
+  }
+  50% {
+    color: black;
+  }
+  75% {
+    color: red;
+  }
+  100% {
+    color: black;
+  }
+}
+
+.negative {
+  border-color: black;
+  border-radius: 3px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: midnightblue;
+  color: white;
+  width: fit-content;
+  text-align: center;
+  padding: 15px 30px;
+  margin: 5px auto;
+}
+
+.interfaceName {
+  color:darkblue;
+  font-size: 22px;
+}
+
+table, tr, th, td {
+  font-size: small;
+  padding: 15px;
+  border-bottom: 1px solid darkslategray;
+  border-collapse: collapse;
+  vertical-align: top;
+}
+
+table {
+  width: 100%;
+}
+
+table.list-group {
+  display: none
+}
+
+th {
+  font-weight: normal;
+  font-style: italic;
+  color: black;
+}
+
+.button {
+  box-shadow: inset 0px 1px 0px 0px white;
+  background: linear-gradient(to bottom, darkslategray 5%, gray 100%);
+  background-color: darkslategray;
+  border-radius: 6px;
+  border: 1px solid black;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 6px 10px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px black;
+}
+.button:hover {
+  background: linear-gradient(to bottom, #ce0100 5%, #fe1a00 100%);
+  background-color:#ce0100;
+  border-color: #fe1a00;
+}
+.button:active {
+  position: relative;
+  top: 1px;
+}

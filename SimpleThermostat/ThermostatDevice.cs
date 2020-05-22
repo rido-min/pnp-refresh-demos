@@ -73,17 +73,9 @@ namespace Thermostat
 
             _ = deviceClient.SetMethodHandlerAsync("reboot", (MethodRequest req, object ctx) =>
               {
-                  var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value");
-                  if (delayVal != null)
-                  {
-                    int.TryParse(delayVal.Value<string>(), out int delay);
-                    OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(delay));
-                  }
-                  else
-                  {
-                      OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(1));
-                  }
-                  return Task.FromResult(new MethodResponse(200));
+                int.TryParse(req.DataAsJson, out int delay);
+                OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(delay));
+                return Task.FromResult(new MethodResponse(200));
               }, null);
                                    
             
@@ -95,7 +87,7 @@ namespace Thermostat
                 {
                     await SendTelemetryValueAsync(CurrentTemperature, "temperature");
                     //await diag.SendTelemetryValueAsync(Environment.WorkingSet);
-                    _logger.LogInformation("Sending workingset and temp");
+                    _logger.LogInformation("Sending CurrentTemperature" + CurrentTemperature);
                     await Task.Delay(5000);
                 }
             });
@@ -107,8 +99,8 @@ namespace Thermostat
             if (properties.Contains(propertyName))
             {
                 var prop = properties[propertyName];
-                var propVal = prop["value"];
-                result = Convert.ToString(propVal);
+                //var propVal = prop["value"];
+                result = Convert.ToString(prop);
             }
 
             return result;
@@ -158,7 +150,7 @@ namespace Thermostat
 
         private void Diag_OnRebootCommand(object sender, RebootCommandEventArgs e)
         {
-            CurrentTemperature = 0;
+            CurrentTemperature = 0.1;
             for (int i = 0; i < e.Delay; i++)
             {
                 _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");

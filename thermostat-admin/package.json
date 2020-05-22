@@ -1,0 +1,39 @@
+{
+  "name": "thermostat-admin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon -r dotenv/config app.js -w ./*.js -i ./wwwroot",
+    "browser-debug": "browser-sync start -p http://localhost:3000 -f wwwroot/*",
+    "test": "standard"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/event-hubs": ">=5.0.2",
+    "azure-iot-digitaltwins-service": "^1.0.0-pnp-refresh.0",
+    "azure-iothub": "^1.12.0",
+    "body-parser": "^1.19.0",
+    "buffer": "^5.5.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "ws": ">=7.1.2"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.9.20",
+    "@types/node": "^14.0.1",
+    "@types/vue": "^2.0.0",
+    "@types/ws": "^7.2.4",
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.3",
+    "standard": "^14.3.3"
+  },
+  "standard": {
+    "globals": [
+      "Vue"
+    ]
+  }
+}

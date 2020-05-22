@@ -1,0 +1,11 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+[v-cloak] {
+  display:none;
+}
+
+.elbowRoom {
+  margin: 10px;
+}

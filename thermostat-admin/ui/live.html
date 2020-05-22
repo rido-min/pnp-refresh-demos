@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Device View</title>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript"
+    charset="utf-8"></script>
+  <link href="live.css" rel="stylesheet" />
+</head>
+
+<body>
+
+  <div id="app" class="container">
+    <h1>{{ deviceId }}</h1>
+    <button v-on:click="reboot">Reboot Device</button>
+    <div class="flex-container">
+      <div>
+        <h3>Current Temp</h3>
+        <div class="bigNumber">{{ currentTemp }}</div>
+      </div>
+      <div>
+        <h3>Target Temp</h3>
+        <div class="bigNumber">{{ targetTemp }}</div>
+        <div class="superBig">
+          <span v-on:click="decrease">-</span><span> |</span> <span v-on:click="increase">+</span>
+        </div>
+      </div>
+    </div>
+    <canvas id="iotChart"></canvas>
+  </div>
+
+  <script src="live.js" type="module"></script>
+
+</body>
+
+</html>
