@@ -49,9 +49,9 @@ const updateDeviceTwin = async (connectionString, deviceId, propertyName, proper
   return updateResult
 }
 
-const invokeDeviceMethod = async (connectionString, deviceId, commandName, commandPayload)=> {
+const invokeDeviceMethod = async (connectionString, deviceId, commandName, commandPayload) => {
   const client = hubClient.fromConnectionString(connectionString)
-  const result = await client.invokeDeviceMethod(deviceId, { methodName: commandName, payload: commandPayload})
+  const result = await client.invokeDeviceMethod(deviceId, { methodName: commandName, payload: commandPayload })
   return result.result
 }
 

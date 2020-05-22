@@ -154,7 +154,7 @@ namespace Thermostat
             for (int i = 0; i < e.Delay; i++)
             {
                 _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-                Task.Delay(1000).Wait();
+                Task.Delay(5000).Wait();
             }
         }
 
