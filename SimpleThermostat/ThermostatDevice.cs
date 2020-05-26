@@ -2,7 +2,6 @@
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
 using System.Threading;
@@ -35,11 +34,7 @@ namespace Thermostat
         string _connectionString;
         private readonly ILogger _logger;
         private CancellationToken _quitSignal;
-
-        event EventHandler<RebootCommandEventArgs> OnRebootCommand;
-
-        event EventHandler<TemperatureEventArgs> OnTargetTempReceived;
-
+       
         double CurrentTemperature;
 
         DeviceClient deviceClient;
@@ -49,10 +44,6 @@ namespace Thermostat
             _quitSignal = cancellationToken;
             _logger = logger;
             _connectionString = connectionString + ";ModelId=" + modelId;
-
-            OnTargetTempReceived += TempSensor_OnTargetTempReceived;
-            OnRebootCommand += Diag_OnRebootCommand;
-
         }
 
         public async Task RunDeviceAsync()
@@ -71,16 +62,23 @@ namespace Thermostat
                 if (double.TryParse(desiredPropertyValue, out double targetTemperature))
                 {
                     //await ReportWritablePropertyAsync("targetTemperature", targetTemperature, 200, "update", desiredProperties.Version);
-                    OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(targetTemperature));
+                    _logger.LogWarning("=====================> TargetTempUpdated: " + targetTemperature);
+                     await this.ProcessTempUpdateAsync(targetTemperature);
                 }
                 await Task.FromResult("200");
             }, null);
 
-            _ = deviceClient.SetMethodHandlerAsync("reboot", (MethodRequest req, object ctx) =>
+            _ = deviceClient.SetMethodHandlerAsync("reboot", async (MethodRequest req, object ctx) =>
               {
-                int.TryParse(req.DataAsJson, out int delay);
-                OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(delay));
-                return Task.FromResult(new MethodResponse(200));
+                  int.TryParse(req.DataAsJson, out int delay);
+                  CurrentTemperature = 0.1;
+                  for (int i = 0; i < delay; i++)
+                  {
+                      _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
+                      await Task.Delay(5000);
+                  }
+                  await ReadDesiredPropertiesAsync();
+                  return await Task.FromResult(new MethodResponse(200));
               }, null);
                                    
             
@@ -93,7 +91,7 @@ namespace Thermostat
                     await SendTelemetryValueAsync(CurrentTemperature, "temperature");
                     //await diag.SendTelemetryValueAsync(Environment.WorkingSet);
                     _logger.LogInformation("Sending CurrentTemperature" + CurrentTemperature);
-                    await Task.Delay(5000);
+                    await Task.Delay(1000);
                 }
             });
         }
@@ -117,7 +115,7 @@ namespace Thermostat
             var targetValue = GetPropertyValueIfFound(twin.Properties.Desired, "targetTemperature");
             if (double.TryParse(targetValue, out double targetTemp))
             {
-                OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(targetTemp));
+                await this.ProcessTempUpdateAsync(targetTemp);
             }
         }
 
@@ -129,8 +127,9 @@ namespace Thermostat
             for (int i = 9; i >= 0; i--)
             {
                 CurrentTemperature = targetTemp - step * (double)i;
-                await SendTelemetryValueAsync(CurrentTemperature, "temperature");
-                await Task.Delay(1000);
+                Console.WriteLine(targetTemp + " " + CurrentTemperature);
+                //await SendTelemetryValueAsync(CurrentTemperature, "temperature");
+                await Task.Delay(500);
             }
         }
 
@@ -150,24 +149,5 @@ namespace Thermostat
 
             await deviceClient.SendEventAsync(message);
         }
-
-
-
-        private void Diag_OnRebootCommand(object sender, RebootCommandEventArgs e)
-        {
-            CurrentTemperature = 0.1;
-            for (int i = 0; i < e.Delay; i++)
-            {
-                _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-                Task.Delay(5000).Wait();
-            }
-        }
-
-        private void TempSensor_OnTargetTempReceived(object sender, TemperatureEventArgs ea)
-        {
-            _logger.LogWarning("=====================> TargetTempUpdated: " + ea.Temperature);
-            Task.Run(async () => { await this.ProcessTempUpdateAsync(ea.Temperature); });
-        }
-
     }
 }
