@@ -58,6 +58,11 @@ namespace Thermostat
         public async Task RunDeviceAsync()
         {
             deviceClient = DeviceClient.CreateFromConnectionString(_connectionString, TransportType.Mqtt);
+            deviceClient.SetConnectionStatusChangesHandler((ConnectionStatus status, ConnectionStatusChangeReason reason) =>
+            {
+                Console.WriteLine(status + " " + reason);
+            });
+
 
             await deviceClient.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx) =>
             {
