@@ -25,7 +25,6 @@
   <div>
     <h4>Desired Properties</h4>
     <div v-for="desProp in desiredProps">
-      <div>{{ desProp.name }} {{ desProp.schema }} {{ desProp.desiredValue }}</div>
       <div>
         <input type="text" v-bind:id="desProp.name" v-bind:value="desProp.desiredValue" />
         <button v-on:click="updateDesiredProp(desProp.name)">Update Prop</button>

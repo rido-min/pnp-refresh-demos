@@ -55,7 +55,6 @@ const getChartOptions = (telNames) => {
         this.commands = modelJson.contents.filter(c => c['@type'] === 'Command').map(e => e)
       },
       runCommand: async function (cmdName) {
-        console.log('running %s', cmdName)
         await apiClient.invokeCommand(this.deviceId, cmdName, 2)
       },
       updateDesiredProp: async function (propName) {
