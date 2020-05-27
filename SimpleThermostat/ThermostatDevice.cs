@@ -9,24 +9,6 @@ using System.Threading.Tasks;
 
 namespace Thermostat
 {
-    public class RebootCommandEventArgs : EventArgs
-    {
-        public int Delay { get; private set; }
-        public RebootCommandEventArgs(int delay)
-        {
-            Delay = delay;
-        }
-    }
-
-    public class TemperatureEventArgs : EventArgs
-    {
-        public TemperatureEventArgs(double t)
-        {
-            Temperature = t;
-        }
-        public double Temperature { get; }
-    }
-
     class ThermostatDevice
     {
         const string modelId = "dtmi:com:example:simplethermostat;1";
@@ -49,11 +31,11 @@ namespace Thermostat
         public async Task RunDeviceAsync()
         {
             deviceClient = DeviceClient.CreateFromConnectionString(_connectionString, TransportType.Mqtt);
+
             deviceClient.SetConnectionStatusChangesHandler((ConnectionStatus status, ConnectionStatusChangeReason reason) =>
             {
                 Console.WriteLine(status + " " + reason);
             });
-
 
             await deviceClient.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx) =>
             {
@@ -72,16 +54,17 @@ namespace Thermostat
               {
                   int.TryParse(req.DataAsJson, out int delay);
                   CurrentTemperature = 0.1;
+                  
                   for (int i = 0; i < delay; i++)
                   {
                       _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
                       await Task.Delay(5000);
                   }
+                  
                   await ReadDesiredPropertiesAsync();
                   return await Task.FromResult(new MethodResponse(200));
               }, null);
-                                   
-            
+
             await ReadDesiredPropertiesAsync();
 
             await Task.Run(async () =>
@@ -95,6 +78,7 @@ namespace Thermostat
                 }
             });
         }
+
         string GetPropertyValueIfFound(TwinCollection properties, string propertyName)
         {
             string result = string.Empty;
@@ -135,7 +119,6 @@ namespace Thermostat
 
         public async Task SendTelemetryValueAsync(double currentTemp, string schema)
         {
-
             var message = new Message(
                 Encoding.UTF8.GetBytes(
                     JsonConvert.SerializeObject(
@@ -147,7 +130,11 @@ namespace Thermostat
             message.ContentType = "application/json";
             message.MessageSchema = schema;
 
-            await deviceClient.SendEventAsync(message);
+            try
+            {
+                await deviceClient.SendEventAsync(message);
+            }
+            catch { Console.WriteLine(); }
         }
     }
 }
