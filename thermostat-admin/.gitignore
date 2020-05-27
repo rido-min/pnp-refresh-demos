@@ -2,3 +2,4 @@ node_modules/
 .devcontainer/
 .vscode/
 .env
+dtdl_models/

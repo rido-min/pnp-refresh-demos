@@ -3,6 +3,7 @@ const path = require('path')
 
 const bodyParser = require('body-parser')
 const hub = require('./app.iothub.js')
+const repo = require('./app.modelRepo.js')
 
 const http = require('http')
 const WebSocket = require('ws')
@@ -80,9 +81,13 @@ router.get('/getModelId', async (req, res) => {
   res.json(result)
 })
 
+router.get('/getModel', async (req, res) => {
+  const result = await repo.getModel(req.query.modelId)
+  return res.json(result)
+})
+
 router.post('/updateDeviceTwin', async (req, res) => {
   const result = await hub.updateDeviceTwin(connectionString, req.body.deviceId, req.body.propertyName, req.body.propertyValue)
-  console.log('twin updated')
   res.json(result.responseBody)
 })
 

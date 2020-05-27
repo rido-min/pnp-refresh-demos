@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Device View</title>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript"
+    charset="utf-8"></script>
+  <link href="s.css" rel="stylesheet" />
+</head>
+
+<body>
+
+  <div id="app" class="container">
+    <h1>{{ deviceId }}</h1>
+    <h3>{{ modelId }}</h3>
+    <div>
+      <h4>Reported Properties</h4>
+      <div v-for="repProp in reportedProps">
+        <div>{{ repProp.name }} {{ repProp.schema }}</div>
+    </div>
+  </div>
+  <div>
+    <h4>Desired Properties</h4>
+    <div v-for="desProp in desiredProps">
+      <div>{{ desProp.name }} {{ desProp.schema }}</div>
+    </div>
+  </div>
+  <div>
+    <h4>Commands</h4>
+    <div v-for="cmd in commands">
+      <div>{{ cmd.name }} </div>
+    </div>
+  </div>
+  <div>
+    <h4>Telemetry</h4>
+    <div v-for="telProp in telemetryProps">
+      <div>{{ telProp.name }} </div>
+    </div>
+  </div>
+
+
+    <canvas id="iotChart"></canvas>
+  </div>
+
+  <script src="pnp.js" type="module"></script>
+
+</body>
+
+</html>

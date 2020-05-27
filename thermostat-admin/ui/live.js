@@ -6,10 +6,6 @@ const webSocket = new window.WebSocket(protocol + window.location.host)
 
 const deviceId = new URLSearchParams(window.location.search).get('deviceId')
 
-const telemetryDataName = 'temperature'
-
-const deviceData = new TelemetryData(deviceId, [telemetryDataName])
-
 const chartData = {
   datasets: [
     {
@@ -63,6 +59,9 @@ const chartOptions = {
   })
 
   app.deviceId = deviceId
+
+  const telemetryDataName = 'temperature'
+  const deviceData = new TelemetryData(deviceId, [telemetryDataName])
 
   const twin = await apiClient.getDeviceTwin(deviceId)
   let targetTempValue

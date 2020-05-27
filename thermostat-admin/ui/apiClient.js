@@ -11,7 +11,16 @@ const getModelId = (deviceId) => {
   return new Promise((resolve, reject) => {
     window.fetch(`/api/getModelId?deviceId=${deviceId}`)
       .then(resp => resp.json())
-      .then(twin => resolve(twin))
+      .then(m => resolve(m))
+      .catch(err => reject(err))
+  })
+}
+
+const getModel = (modelId) => {
+  return new Promise((resolve, reject) => {
+    window.fetch(`/api/getModel?modelId=${modelId}`)
+      .then(resp => resp.json())
+      .then(m => resolve(m))
       .catch(err => reject(err))
   })
 }
@@ -50,4 +59,4 @@ const invokeCommand = (deviceId, commandName, payload) => {
   })
 }
 
-export { getDeviceTwin, updateDeviceTwin, invokeCommand, getModelId }
+export { getDeviceTwin, updateDeviceTwin, invokeCommand, getModelId, getModel }
