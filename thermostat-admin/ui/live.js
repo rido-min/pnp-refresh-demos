@@ -10,10 +10,9 @@ class DeviceData {
     this.maxLen = 50
     this.timeData = new Array(this.maxLen)
     this.temperatureData = new Array(this.maxLen)
-    this.humidityData = new Array(this.maxLen)
   }
 
-  addData (time, temperature, humidity) {
+  addData (time, temperature) {
     const t = new Date(time)
     const timeString = `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}`
 
@@ -104,7 +103,7 @@ const chartOptions = {
   webSocket.onmessage = (message) => {
     const messageData = JSON.parse(message.data)
     if (messageData.IotData.temperature) {
-      deviceData.addData(messageData.MessageDate, messageData.IotData.temperature, messageData.IotData.humidity)
+      deviceData.addData(messageData.MessageDate, messageData.IotData.temperature)
       app.currentTemp = Math.ceil(messageData.IotData.temperature * 100) / 100
       chartData.labels = deviceData.timeData
       chartData.datasets[0].data = deviceData.temperatureData
