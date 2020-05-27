@@ -83,7 +83,12 @@ router.get('/getModelId', async (req, res) => {
 
 router.get('/getModel', async (req, res) => {
   const result = await repo.getModel(req.query.modelId)
-  return res.json(result)
+  if (result) {
+    return res.json(result)
+  } else {
+    return res.json('')
+  }
+
 })
 
 router.post('/updateDeviceTwin', async (req, res) => {
