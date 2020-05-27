@@ -28,7 +28,7 @@ const getDeviceList = (connectionString, cb) => {
       console.error(`Failed to query devices due to ${err}`)
     } else {
       const devicesInfo = devices.map((d) => {
-        const elapsed = moment(d.lastActivityTime)  
+        const elapsed = moment(d.lastActivityTime)
         return {
           id: d.deviceId,
           time: elapsed.isBefore('2019-01-01', 'year') ? '' : elapsed.fromNow(),
