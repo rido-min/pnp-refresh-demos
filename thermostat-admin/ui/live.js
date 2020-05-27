@@ -52,7 +52,6 @@ const chartOptions = {
         await apiClient.updateDeviceTwin(this.deviceId, 'targetTemperature', this.targetTemp)
       },
       reboot: async function () {
-        console.log('reboot')
         await apiClient.invokeCommand(this.deviceId, 'reboot', 2)
       }
     }

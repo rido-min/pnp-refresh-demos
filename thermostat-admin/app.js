@@ -92,7 +92,6 @@ router.post('/updateDeviceTwin', async (req, res) => {
 })
 
 router.post('/invokeCommand', async (req, res) => {
-  console.log(`Running command: ${req.body.command}`)
   const result = await hub.invokeDeviceMethod(
     connectionString,
     req.body.deviceId,
