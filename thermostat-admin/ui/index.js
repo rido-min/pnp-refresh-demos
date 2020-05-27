@@ -41,6 +41,13 @@
           window.fetch('/api/getDevices')
             .then(resp => resp.json())
             .then(devicesDto => {
+              devicesDto.forEach(d => {
+                window.fetch(`/api/getModelId?deviceId=${d.id}`)
+                  .then(resp => resp.json())
+                  .then(m => {
+                    d.modelId = m
+                  })
+              })
               this.devices = devicesDto
               this.refreshCount()
             })
@@ -89,12 +96,12 @@
 
   window.fetch('/api/connection-string')
     .then(resp => resp.json())
-    .then(json => {
+    .then(async (json) => {
       if (json.length < 20) {
         app.hub = '<not configured>'
       } else {
         app.hub = json
-        app.refreshDevices()
+        await app.refreshDevices()
       }
     })
 })()

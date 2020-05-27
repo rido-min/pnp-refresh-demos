@@ -95,6 +95,7 @@
                          v-for="device in devices">
                         <center>
                             <div class="card-title h4">{{device.id}}</div>
+                            <div class="card-title h5">{{device.modelId}}</div>
 
                             <img v-if="device.manufacturer === 'MXChip'"
                                  class="card-img-top"

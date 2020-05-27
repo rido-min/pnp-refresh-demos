@@ -7,6 +7,15 @@ const getDeviceTwin = (deviceId) => {
   })
 }
 
+const getModelId = (deviceId) => {
+  return new Promise((resolve, reject) => {
+    window.fetch(`/api/getModelId?deviceId=${deviceId}`)
+      .then(resp => resp.json())
+      .then(twin => resolve(twin))
+      .catch(err => reject(err))
+  })
+}
+
 const updateDeviceTwin = (deviceId, propertyName, propertyValue) => {
   const options = {
     method: 'POST',
@@ -41,4 +50,4 @@ const invokeCommand = (deviceId, commandName, payload) => {
   })
 }
 
-export { getDeviceTwin, updateDeviceTwin, invokeCommand }
+export { getDeviceTwin, updateDeviceTwin, invokeCommand, getModelId }

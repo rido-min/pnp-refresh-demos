@@ -75,6 +75,11 @@ router.get('/getDeviceTwin', async (req, res) => {
   res.json(result.responseBody)
 })
 
+router.get('/getModelId', async (req, res) => {
+  const result = await hub.getModelId(connectionString, req.query.deviceId)
+  res.json(result)
+})
+
 router.post('/updateDeviceTwin', async (req, res) => {
   const result = await hub.updateDeviceTwin(connectionString, req.body.deviceId, req.body.propertyName, req.body.propertyValue)
   console.log('twin updated')
