@@ -53,6 +53,14 @@ const getChartOptions = (telNames) => {
         this.reportedProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === false).map(e => e)
         this.desiredProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === true).map(e => e)
         this.commands = modelJson.contents.filter(c => c['@type'] === 'Command').map(e => e)
+      },
+      runCommand: async function (cmdName) {
+        console.log('running %s', cmdName)
+        await apiClient.invokeCommand(this.deviceId, cmdName, 2)
+      },
+      updateDesiredProp: async function (propName) {
+        const el = document.getElementById(propName)
+        await apiClient.updateDeviceTwin(this.deviceId, propName, el.value)
       }
     }
   })
@@ -61,6 +69,28 @@ const getChartOptions = (telNames) => {
   app.modelId = await apiClient.getModelId(deviceId)
   await app.parseModel()
 
+  const twin = await apiClient.getDeviceTwin(deviceId)
+  // reported props
+  app.reportedProps.forEach(p => {
+    if (twin &&
+      twin.properties &&
+      twin.properties.reported &&
+      twin.properties.reported[p.name]) {
+      Vue.set(p, 'reportedValue', twin.properties.reported[p.name])
+    }
+  })
+
+  // desired props
+  app.desiredProps.forEach(p => {
+    if (twin &&
+      twin.properties &&
+      twin.properties.desired &&
+      twin.properties.desired[p.name]) {
+      Vue.set(p, 'desiredValue', twin.properties.desired[p.name])
+    }
+  })
+
+  // telemetry
   const telNames = app.telemetryProps.map(t => t.name)
   const deviceData = new TelemetryData(deviceId, app.telemetryProps.map(t => t.name))
   const chartData = getChartData(telNames)

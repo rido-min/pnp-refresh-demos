@@ -19,19 +19,23 @@
     <div>
       <h4>Reported Properties</h4>
       <div v-for="repProp in reportedProps">
-        <div>{{ repProp.name }} {{ repProp.schema }}</div>
+        <div>{{ repProp.name }} {{ repProp.schema }} {{ repProp.reportedValue }}</div>
     </div>
   </div>
   <div>
     <h4>Desired Properties</h4>
     <div v-for="desProp in desiredProps">
-      <div>{{ desProp.name }} {{ desProp.schema }}</div>
+      <div>{{ desProp.name }} {{ desProp.schema }} {{ desProp.desiredValue }}</div>
+      <div>
+        <input type="text" v-bind:id="desProp.name" v-bind:value="desProp.desiredValue" />
+        <button v-on:click="updateDesiredProp(desProp.name)">Update Prop</button>
+      </div>
     </div>
   </div>
   <div>
     <h4>Commands</h4>
     <div v-for="cmd in commands">
-      <div>{{ cmd.name }} </div>
+      <button v-on:click="runCommand(cmd.name)">{{ cmd.name }}</button>
     </div>
   </div>
   <div>
