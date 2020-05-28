@@ -9,7 +9,7 @@ namespace Refrigerator
         static List<byte[]> memory = new List<byte[]>();
         static internal void FillMemory()
         {
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 100; i++)
             {
                 memory.Add(new byte[1024 * 1024]);
             }
