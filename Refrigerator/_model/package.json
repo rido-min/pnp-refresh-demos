@@ -1,0 +1,9 @@
+{
+  "name": "@digital-twins/dev-rido-refrigerator",
+  "version": "1.0.0",
+  "models": [ "refrigerator.json" ],
+  "description": "",
+  "keywords": [],
+  "author": "rido",
+  "license": "ISC"
+}

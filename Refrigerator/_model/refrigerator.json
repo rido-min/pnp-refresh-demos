@@ -1,0 +1,40 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:dev:rido:refrigerator;1",
+  "@type": "Interface",
+  "displayName": "Simple Refrigerator",
+  "contents": [
+    {
+      "@type": "Property",
+      "displayName": "Refresh Interval",
+      "description": "Desired refresh interval.",
+      "name": "RefreshInterval",
+      "schema": "double",
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "displayName": "Device Serial Number",
+      "name": "SerialNumber",
+      "schema": "double",
+      "writable": false
+    },
+    {
+      "@type": "Telemetry",
+      "description": "Current temperature on the device",
+      "displayName": "Temperature",
+      "name": "temp",
+      "schema": "int"
+    },
+    {
+      "@type": "Command",
+      "description": "This command will reboot the device application.",
+      "displayName": "Reset",
+      "name": "Reset",
+      "request": {
+        "name": "delay",
+        "schema": "integer"
+      }
+    }
+  ]
+}
