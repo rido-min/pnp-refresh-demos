@@ -85,6 +85,7 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
   const myLineChart = createChart('iotChart', telNames)
   webSocket.onmessage = (message) => {
     const messageData = JSON.parse(message.data)
+    console.log(messageData.DeviceId)
     telNames.forEach(t => {
       if (messageData.IotData[t]) {
         const telemetryValue = messageData.IotData[t]

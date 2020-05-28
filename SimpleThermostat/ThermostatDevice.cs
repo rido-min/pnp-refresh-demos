@@ -11,7 +11,7 @@ namespace Thermostat
 {
     class ThermostatDevice
     {
-        const string modelId = "dtmi:com:example:simplethermostat;1";
+        const string modelId = "dtmi:com:example:simplethermostat;2";
 
         string _connectionString;
         private readonly ILogger _logger;
@@ -43,7 +43,6 @@ namespace Thermostat
                 string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, "targetTemperature");
                 if (double.TryParse(desiredPropertyValue, out double targetTemperature))
                 {
-                    //await ReportWritablePropertyAsync("targetTemperature", targetTemperature, 200, "update", desiredProperties.Version);
                     _logger.LogWarning("=====================> TargetTempUpdated: " + targetTemperature);
                      await this.ProcessTempUpdateAsync(targetTemperature);
                 }
@@ -52,15 +51,13 @@ namespace Thermostat
 
             _ = deviceClient.SetMethodHandlerAsync("reboot", async (MethodRequest req, object ctx) =>
               {
-                  int.TryParse(req.DataAsJson, out int delay);
                   CurrentTemperature = 0.1;
-                  
+                  int.TryParse(req.DataAsJson, out int delay);
                   for (int i = 0; i < delay; i++)
                   {
                       _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-                      await Task.Delay(5000);
+                      await Task.Delay(2000);
                   }
-                  
                   await ReadDesiredPropertiesAsync();
                   return await Task.FromResult(new MethodResponse(200));
               }, null);

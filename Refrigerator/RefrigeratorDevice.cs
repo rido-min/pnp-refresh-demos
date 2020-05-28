@@ -53,7 +53,7 @@ namespace Refrigerator
             _ = deviceClient.SetMethodHandlerAsync("Reset", async (MethodRequest req, object ctx) =>
             {
                 Console.WriteLine("============> Processing Reset");
-                memory = new List<byte[]>();
+                MemoryLeak.FreeMemory();
                 RefreshInterval = 1;
                 return await Task.FromResult(new MethodResponse(200));
             }, null);
@@ -69,7 +69,6 @@ namespace Refrigerator
                 var rnd = new Random(Environment.TickCount);
                 while (!_quitSignal.IsCancellationRequested)
                 {
-                    
                     var payload = new 
                     {
                         temp = avg +  rnd.Next(10),
@@ -78,19 +77,12 @@ namespace Refrigerator
                     await SendTelemetryValueAsync(payload);
                     _logger.LogInformation("Sending CurrentTemperature: " + payload.temp);
                     await Task.Delay(RefreshInterval*1000);
-                    FillMemory();
+                    MemoryLeak.FillMemory();
                 }
             });
         }
 
-        List<byte[]> memory = new List<byte[]>();
-        void FillMemory()
-        {
-            for (int i = 0; i < 100; i++)
-            {
-                memory.Add(new byte[1024*1024]);
-            }
-        }
+       
 
 
         string GetPropertyValueIfFound(TwinCollection properties, string propertyName)

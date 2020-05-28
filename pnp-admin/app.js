@@ -28,18 +28,6 @@ app.use(express.static('ui'))
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
-wss.broadcast = (data) => {
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      try {
-        client.send(data)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  })
-}
-
 router.get('/', (req, res, next) => res.sendFile('index.html', { root: path.join(__dirname, 'wwwroot/index.html') }))
 
 router.get('/connection-string', (req, res) => {
@@ -112,16 +100,16 @@ server.listen(port, () => console.log(`IoT Express app listening on port ${port}
 
 ;(async () => {
   await eventHubReader.startReadMessage((message, date, deviceId) => {
-    try {
-      const payload = {
-        IotData: message,
-        MessageDate: date || Date.now().toISOString(),
-        DeviceId: deviceId
-      }
-      // console.log(message)
-      wss.broadcast(JSON.stringify(payload))
-    } catch (err) {
-      console.error('Error broadcasting: [%s] from [%s].', err, message)
+    const payload = {
+      IotData: message,
+      MessageDate: date || Date.now().toISOString(),
+      DeviceId: deviceId
     }
+    // console.log(message)
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(payload))
+      }
+    })
   })
 })()
