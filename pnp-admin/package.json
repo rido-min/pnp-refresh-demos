@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config app.js -w ./*.js -i ./ui",
+    "start": "node app.js",
+    "serve": "nodemon -r dotenv/config app.js -w ./*.js -i ./ui",
     "browser-debug": "browser-sync start -p http://localhost:3000 -f ui/*",
     "test": "standard"
   },

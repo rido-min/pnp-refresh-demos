@@ -9,7 +9,7 @@ const http = require('http')
 const WebSocket = require('ws')
 const EventHubReader = require('./app.eventHub')
 
-const port = 3000
+const port = 8080
 
 let connectionString = process.env.IOTHUB_CONNECTION_STRING
 
@@ -93,7 +93,7 @@ router.post('/invokeCommand', async (req, res) => {
   res.json(result)
 })
 
-const eventHubConsumerGroup = process.env.EventHubConsumerGroup
+const eventHubConsumerGroup = 'node-web-chart'
 const eventHubReader = new EventHubReader(connectionString, eventHubConsumerGroup)
 
 server.listen(port, () => console.log(`IoT Express app listening on port ${port}`))
