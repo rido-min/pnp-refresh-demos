@@ -38,6 +38,17 @@ namespace Refrigerator
                 Console.WriteLine(status + " " + reason);
             });
 
+            #region commands
+            _ = deviceClient.SetMethodHandlerAsync("Reset", async (MethodRequest req, object ctx) =>
+            {
+                Console.WriteLine("============> Processing Reset");
+                MemoryLeak.FreeMemory();
+                RefreshInterval = 1;
+                return await Task.FromResult(new MethodResponse(200));
+            }, null);
+            #endregion
+
+            #region desired props
             await deviceClient.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx) =>
             {
                 Console.WriteLine($"Received desired updates [{desiredProperties.ToJson()}]");
@@ -49,19 +60,22 @@ namespace Refrigerator
                 }
                 await Task.FromResult("200");
             }, null);
+            #endregion
 
-            _ = deviceClient.SetMethodHandlerAsync("Reset", async (MethodRequest req, object ctx) =>
-            {
-                Console.WriteLine("============> Processing Reset");
-                MemoryLeak.FreeMemory();
-                RefreshInterval = 1;
-                return await Task.FromResult(new MethodResponse(200));
-            }, null);
-
+            #region reported props
             var props = new TwinCollection();
             props["SerialNumber"] = "XDre3243245345-2";
-            props["FirmwareVersion"] = "1.2.3";
             await deviceClient.UpdateReportedPropertiesAsync(props);
+            #endregion
+
+            #region telemetry
+            async Task SendTelemetryValueAsync(object telemetryPayload)
+            {
+                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(telemetryPayload)))
+                { ContentType = "application/json", ContentEncoding = "utf-8" };
+                await deviceClient.SendEventAsync(message);
+            }
+            #endregion
 
             await Task.Run(async () =>
             {
@@ -69,21 +83,17 @@ namespace Refrigerator
                 var rnd = new Random(Environment.TickCount);
                 while (!_quitSignal.IsCancellationRequested)
                 {
-                    var payload = new 
+                    var payload = new
                     {
-                        temp = avg +  rnd.Next(10),
-                        WorkingSet = Environment.WorkingSet
+                        temp = avg + rnd.Next(10)
                     };
                     await SendTelemetryValueAsync(payload);
                     _logger.LogInformation("Sending CurrentTemperature: " + payload.temp);
-                    await Task.Delay(RefreshInterval*1000);
+                    await Task.Delay(RefreshInterval * 1000);
                     MemoryLeak.FillMemory();
                 }
             });
         }
-
-       
-
 
         string GetPropertyValueIfFound(TwinCollection properties, string propertyName)
         {
@@ -99,12 +109,7 @@ namespace Refrigerator
             return result;
         }
 
-        public async Task SendTelemetryValueAsync(object telemetryPayload)
-        {
-            var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(telemetryPayload)))
-            { ContentType = "application/json" , ContentEncoding = "utf-8"};
-            await deviceClient.SendEventAsync(message);
-        }
+
 
     }
 }
