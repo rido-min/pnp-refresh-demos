@@ -88,7 +88,6 @@ router.get('/getModel', async (req, res) => {
   } else {
     return res.json('')
   }
-
 })
 
 router.post('/updateDeviceTwin', async (req, res) => {

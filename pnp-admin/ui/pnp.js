@@ -90,7 +90,8 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
         const telemetryValue = messageData.IotData[t]
         myLineChart.data.labels = deviceData.timeData
         deviceData.addDataPoint(messageData.MessageDate, t, telemetryValue)
-        myLineChart.data.datasets[0].data = deviceData.dataPoints[t]
+        const curDataSet = myLineChart.data.datasets.filter(ds => ds.yAxisID === t)
+        curDataSet[0].data = deviceData.dataPoints[t]
         myLineChart.update()
       }
     })

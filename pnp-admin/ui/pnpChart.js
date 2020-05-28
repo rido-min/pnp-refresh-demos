@@ -1,9 +1,10 @@
+const lineColors = ['red', 'blue', 'green', 'black']
 const getChartData = (telNames) => {
   const chartData = {
     datasets: []
   }
   telNames.forEach(t => {
-    chartData.datasets.push({ fill: false, label: t, yAxisID: t })
+    chartData.datasets.push({ fill: false, label: t, yAxisID: t, borderColor: lineColors[~~(lineColors.length * Math.random())] })
   })
   return chartData
 }
