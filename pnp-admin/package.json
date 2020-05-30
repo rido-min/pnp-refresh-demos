@@ -37,7 +37,7 @@
   },
   "standard": {
     "globals": [
-      "Vue"
+      "Vue","moment"
     ]
   }
 }

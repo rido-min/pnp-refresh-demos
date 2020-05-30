@@ -2,7 +2,7 @@
   "profiles": {
     "Refrigerator": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=rfg-01;SharedAccessKey=1KJrYKa/vdYBJKCGrAY+D8HBjTBeTGV20cDp+zuPZ68=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=refrigerator1;SharedAccessKey=qF07wMQrxGMxnJNRWmXhI22fV14kB1TiHkBbiGkfP0c=\""
     }
   }
 }

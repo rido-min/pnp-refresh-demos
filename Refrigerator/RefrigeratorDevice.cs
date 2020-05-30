@@ -44,6 +44,7 @@ namespace Refrigerator
                 Console.WriteLine("============> Processing Reset");
                 MemoryLeak.FreeMemory();
                 RefreshInterval = 1;
+                await ReportProps();
                 return await Task.FromResult(new MethodResponse(200));
             }, null);
             #endregion
@@ -52,20 +53,70 @@ namespace Refrigerator
             await deviceClient.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx) =>
             {
                 Console.WriteLine($"Received desired updates [{desiredProperties.ToJson()}]");
+                await ReportWritablePropertyAsync("RefreshInterval", RefreshInterval, 202, "Refresh Interval Pending", desiredProperties.Version);
+
                 string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, "RefreshInterval");
                 if (int.TryParse(desiredPropertyValue, out int refreshInterval))
                 {
+                    //await Task.Delay(refreshInterval * 1000);
                     _logger.LogWarning("=====================> RefreshInterval: " + refreshInterval);
                     RefreshInterval = refreshInterval;
+                    await ReportWritablePropertyAsync("RefreshInterval", RefreshInterval, 200, "Refresh Interval Updated", desiredProperties.Version);
+                }
+                else
+                {
+                    await ReportWritablePropertyAsync("RefreshInterval", RefreshInterval, 400, "Refresh Interval Invalid", desiredProperties.Version);
                 }
                 await Task.FromResult("200");
             }, null);
+
+            async Task ReadDesiredProperties()
+            {
+                var twin = await deviceClient.GetTwinAsync();
+                var desiredProperties = twin.Properties.Desired;
+                string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, "RefreshInterval");
+                if (int.TryParse(desiredPropertyValue, out int refreshInterval))
+                {
+                    RefreshInterval = refreshInterval;
+                    _logger.LogInformation("Refresh Interval intialized to :" + refreshInterval.ToString());
+                    await ReportWritablePropertyAsync("RefreshInterval", refreshInterval, 200, "RefreshInterval updated on read", desiredProperties.Version);
+                }
+                else
+                {
+                    _logger.LogWarning("Refresh interval cant be assigned to int: " + desiredPropertyValue);
+                }
+            }
+
+            async Task ReportWritablePropertyAsync(string propertyName, object payload, int statuscode, string description, long version)
+            {
+                //var root = new TwinCollection();
+                var propertyVal = new TwinCollection();
+                var valtc = new TwinCollection();
+                valtc["value"] = payload;
+                valtc["sc"] = statuscode;
+                valtc["sd"] = description;
+                valtc["sv"] = version;
+                propertyVal[propertyName] = valtc;
+                //root[this.componentName] = propertyVal;
+
+                //var reportedVal = root;
+
+                await deviceClient.UpdateReportedPropertiesAsync(propertyVal);
+                Console.WriteLine($"Reported writable property [{propertyName}] - {JsonConvert.SerializeObject(payload)}");
+            }
+
+
             #endregion
 
             #region reported props
-            var props = new TwinCollection();
-            props["SerialNumber"] = "XDre3243245345-2";
-            await deviceClient.UpdateReportedPropertiesAsync(props);
+            async Task ReportProps()
+            {
+                var props = new TwinCollection();
+                props["SerialNumber"] = "XDre3243245345-2";
+                props["LastInitDateTime"] = DateTime.Now.ToUniversalTime();
+                await deviceClient.UpdateReportedPropertiesAsync(props);
+            }
+
             #endregion
 
             #region telemetry
@@ -79,6 +130,8 @@ namespace Refrigerator
 
             await Task.Run(async () =>
             {
+                await ReadDesiredProperties();
+                await ReportProps();
                 int avg = 21;
                 var rnd = new Random(Environment.TickCount);
                 while (!_quitSignal.IsCancellationRequested)
@@ -90,7 +143,7 @@ namespace Refrigerator
                     await SendTelemetryValueAsync(payload);
                     _logger.LogInformation("Sending CurrentTemperature: " + payload.temp);
                     await Task.Delay(RefreshInterval * 1000);
-                    MemoryLeak.FillMemory();
+                    //MemoryLeak.FillMemory();
                 }
             });
         }

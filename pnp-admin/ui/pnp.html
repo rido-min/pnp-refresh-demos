@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live Device View</title>
   <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/moment"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript"
     charset="utf-8"></script>
   <link href="s.css" rel="stylesheet" />
@@ -17,13 +18,20 @@
     <h1>{{ deviceId }}</h1>
     <span>{{ modelId }}</span>
     <div>
-      <h4>Reported Properties</h4>
+      <h4>Reported Properties
+        <i>version: {{ reportedProps.version }}</i>
+      </h4>
+      
       <div v-for="repProp in reportedProps">
-        <div>{{ repProp.name }} ({{ repProp.schema }}) <strong>{{ repProp.reportedValue }}</strong></div>
+        <div>{{ repProp.name }} ({{ repProp.schema }}) <strong>{{ repProp.reportedValue }}</strong>
+          upated: <i> {{ repProp.lastUpdated }}</i> 
+        </div>
     </div>
   </div>
   <div>
-    <h4>Desired Properties</h4>
+    <h4>Desired Properties
+      <i>version: {{ desiredProps.version }}</i>
+    </h4>
     <div v-for="desProp in desiredProps">
       <div>
         <span>{{ desProp.name }} ({{ desProp.schema }})</span>

@@ -3,8 +3,8 @@
 const fs = require('fs')
 const glob = require('glob')
 
-const npmorg = '@digital-twins/'
-const dir = './dtdl_models/' + npmorg
+// const npmorg = '@digital-twins/'
+const dir = './dtdl_models/' // + npmorg
 
 let models = []
 

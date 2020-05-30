@@ -21,16 +21,19 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
       methods: {
         parseModel: async function (modelJson) {
           this.telemetryProps = modelJson.contents.filter(c => c['@type'].includes('Telemetry')).map(e => e)
-          this.reportedProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === false).map(e => e)
-          this.desiredProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === true).map(e => e)
           this.commands = modelJson.contents.filter(c => c['@type'] === 'Command').map(e => e)
+          this.desiredProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === true).map(e => e)
+          const reported = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === false).map(e => e)
+          this.reportedProps = reported.concat(this.desiredProps)
         },
         runCommand: async function (cmdName) {
           await apiClient.invokeCommand(this.deviceId, cmdName, 2)
         },
         updateDesiredProp: async function (propName) {
           const el = document.getElementById(propName)
-          await apiClient.updateDeviceTwin(this.deviceId, propName, el.value)
+          const prop = this.desiredProps.filter(x => x.name === propName)[0]
+          Vue.set(prop, 'desiredValue', el.value)
+          await apiClient.updateDeviceTwin(this.deviceId, propName, parseInt(el.value))
         }
       }
     })
@@ -60,16 +63,20 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
 
   const twin = await apiClient.getDeviceTwin(deviceId)
   // reported props
+  Vue.set(app.reportedProps, 'version', twin.properties.reported.$version)
   app.reportedProps.forEach(p => {
     if (twin &&
       twin.properties &&
       twin.properties.reported &&
       twin.properties.reported[p.name]) {
-      Vue.set(p, 'reportedValue', twin.properties.reported[p.name])
+      const updated = moment(twin.properties.reported.$metadata[p.name].$lastUpdated).fromNow()
+      Vue.set(p, 'reportedValue', twin.properties.reported[p.name].value || twin.properties.reported[p.name])
+      Vue.set(p, 'lastUpdated', updated)
     }
   })
 
   // desired props
+  Vue.set(app.desiredProps, 'version', twin.properties.desired.$version)
   app.desiredProps.forEach(p => {
     if (twin &&
       twin.properties &&
@@ -79,13 +86,49 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
     }
   })
 
+  const updateReported = (reported) => {
+    Vue.set(app.reportedProps, 'version', reported.$version)
+    for (const p in reported) {
+      if (!p.startsWith('$')) {
+        const prop = app.reportedProps.filter(x => x.name === p)[0]
+        if (prop) {
+          Vue.set(prop, 'reportedValue', reported[p].value || reported[p])
+          Vue.set(prop, 'lastUpdated', moment(reported.$metadata[p].$lastUpdated).fromNow())
+        }
+      }
+    }
+  }
+
+  const updateDesired = (desired) => {
+    Vue.set(app.desiredProps, 'version', desired.$version)
+    for (const p in desired) {
+      if (!p.startsWith('$')) {
+        const prop = app.desiredProps.filter(x => x.name === p)[0]
+        if (prop) {
+          Vue.set(prop, 'desiredValue', desired[p])
+          Vue.set(prop, 'lastUpdated', moment(desired.$metadata[p].$lastUpdated).fromNow())
+        }
+      }
+    }
+  }
+
   // telemetry
   const telNames = app.telemetryProps.map(t => t.name)
   const deviceData = new TelemetryData(deviceId, app.telemetryProps.map(t => t.name))
   const myLineChart = createChart('iotChart', telNames)
+
   webSocket.onmessage = (message) => {
     const messageData = JSON.parse(message.data)
-    console.log(messageData.DeviceId)
+    // console.log(messageData)
+    if (messageData.IotData.properties && messageData.IotData.properties.reported) {
+      updateReported(messageData.IotData.properties.reported)
+      return
+    }
+    if (messageData.IotData.properties && messageData.IotData.properties.desired) {
+      updateDesired(messageData.IotData.properties.desired)
+      return
+    }
+
     telNames.forEach(t => {
       if (messageData.IotData[t]) {
         const telemetryValue = messageData.IotData[t]
