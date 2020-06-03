@@ -23,18 +23,33 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
           this.telemetryProps = modelJson.contents.filter(c => c['@type'].includes('Telemetry')).map(e => e)
           this.commands = modelJson.contents.filter(c => c['@type'] === 'Command').map(e => e)
           this.desiredProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === true).map(e => e)
-          const reported = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === false).map(e => e)
+          const reported = modelJson.contents.filter(c => c['@type'] === 'Property' && (c.writable === false || c.writable === undefined)).map(e => e)
           this.reportedProps = reported.concat(this.desiredProps)
         },
         runCommand: async function (cmdName) {
-          await apiClient.invokeCommand(this.deviceId, cmdName, 2)
+          const el = document.getElementById(cmdName + '-payload')
+          let cmdPayload = el.value
+          const cmd = this.commands.filter(c => c.name === cmdName)[0]
+
+          if (cmd.request.schema === 'boolean') {
+            cmdPayload = (cmdPayload.toLowerCase() === 'true')
+          }
+          if (cmd.request.schema === 'double') {
+            cmdPayload = parseFloat(cmdPayload)
+          }
+          if (cmd.request.schema === 'integer') {
+            cmdPayload = parseInt(cmdPayload, 10)
+          }
+
+          console.log(cmdName + cmdPayload)
+          await apiClient.invokeCommand(this.deviceId, cmdName, cmdPayload)
         },
         updateDesiredProp: async function (propName) {
           const el = document.getElementById(propName)
           const prop = this.desiredProps.filter(x => x.name === propName)[0]
           Vue.set(prop, 'desiredValue', el.value)
           await apiClient.updateDeviceTwin(this.deviceId, propName, parseInt(el.value))
-        }
+        },
       }
     })
   }
@@ -83,6 +98,13 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
       twin.properties.desired &&
       twin.properties.desired[p.name]) {
       Vue.set(p, 'desiredValue', twin.properties.desired[p.name])
+    }
+  })
+
+  // commands
+  app.commands.forEach(c => {
+    if (c.request) {
+      Vue.set(c, 'payload', ' ')
     }
   })
 

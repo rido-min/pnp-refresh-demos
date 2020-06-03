@@ -43,6 +43,7 @@
   <div>
     <h4>Commands</h4>
     <div v-for="cmd in commands">
+      <input type="text" v-bind:id="cmd.name + '-payload'"/>
       <button v-on:click="runCommand(cmd.name)">{{ cmd.name }}</button>
     </div>
   </div>
