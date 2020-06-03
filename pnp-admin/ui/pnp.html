@@ -13,22 +13,24 @@
 </head>
 
 <body>
-
-  <div id="app" class="container">
+  <div id="app" class="container" v-cloak>
     <h1>{{ deviceId }}</h1>
     <span>{{ modelId }}</span>
-    <div>
+    <div v-if="reportedProps.length>0">
       <h4>Reported Properties
         <i>version: {{ reportedProps.version }}</i>
       </h4>
-      
-      <div v-for="repProp in reportedProps">
-        <div>{{ repProp.name }} ({{ repProp.schema }}) <strong>{{ repProp.reportedValue }}</strong>
-          upated: <i> {{ repProp.lastUpdated }}</i> 
-        </div>
+      <div v-for="repProp in reportedProps" class="tile-container">
+        <div class="tile">
+          <div class="tile-num-big">
+            {{ repProp.reportedValue }}
+          </div>
+          <div class="tile-name">{{ repProp.name }}</div>
+          <div class="tile-caption">last updated: {{ repProp.lastUpdated }}</div>
+        </div>        
     </div>
   </div>
-  <div>
+  <div v-if="desiredProps.length>0">
     <h4>Desired Properties
       <i>version: {{ desiredProps.version }}</i>
     </h4>
@@ -40,7 +42,7 @@
       </div>
     </div>
   </div>
-  <div>
+  <div v-if="commands.length>0">
     <h4>Commands</h4>
     <div v-for="cmd in commands">
       <input type="text" v-bind:id="cmd.name + '-payload'"/>
@@ -53,8 +55,6 @@
       <div>{{ telProp.name }} </div>
     </div>
   </div>
-
-
     <canvas id="iotChart"></canvas>
   </div>
 

@@ -49,7 +49,7 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
           const prop = this.desiredProps.filter(x => x.name === propName)[0]
           Vue.set(prop, 'desiredValue', el.value)
           await apiClient.updateDeviceTwin(this.deviceId, propName, parseInt(el.value))
-        },
+        }
       }
     })
   }

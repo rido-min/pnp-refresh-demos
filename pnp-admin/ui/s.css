@@ -9,3 +9,28 @@ body {
 .elbowRoom {
   margin: 10px;
 }
+
+.tile {
+  padding: 10px;
+  width: min-content;
+  background-color: blue;
+  color: white;
+  text-align: right;
+}
+
+.tile-container {
+  padding: 5px
+}
+
+.tile-num-big {
+  font-size: 56px;
+}
+
+.tile-name {
+  font-size: large;
+  font-weight: bold;
+}
+
+.tile-caption {
+  font-size: small;
+}
