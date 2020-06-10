@@ -19,4 +19,8 @@
   <ItemGroup>
     <Folder Include="_model\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PnPConvention\PnPConvention.csproj" />
+  </ItemGroup>
 </Project>

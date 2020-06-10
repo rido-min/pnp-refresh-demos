@@ -2,7 +2,7 @@
 using Microsoft.Azure.Devices.Shared;
 using System;
 using System.Threading.Tasks;
-using Thermostat.PnPConvention;
+using PnPConvention;
 
 namespace Thermostat.PnPComponents
 {
@@ -10,22 +10,23 @@ namespace Thermostat.PnPComponents
     {
         public DeviceInformation(DeviceClient client, string componentName) : base (client, componentName)
         {
+            
         }
 
         public async Task ReportDeviceInfoPropertiesAsync(DeviceInfo di)
         {
-            PnPPropertyCollection propertyCollection = base.NewReportedProperties();
-            propertyCollection.Set("manufacturer", di.Manufacturer);
-            propertyCollection.Set("model", di.Model);
-            propertyCollection.Set("swVersion", di.SoftwareVersion);
-            propertyCollection.Set("osName", di.OperatingSystemName);
-            propertyCollection.Set("processorArchitecture", di.ProcessorArchitecture);
-            propertyCollection.Set("processorManufacturer", di.ProcessorManufacturer);
-            propertyCollection.Set("totalMemory", di.TotalMemory);
-            propertyCollection.Set("totalStorage", di.TotalStorage);
+            var propertyCollection = new TwinCollection();
+            propertyCollection.AddComponentProperty(base.componentName, "manufacturer", di.Manufacturer);
+            propertyCollection.AddComponentProperty(base.componentName, "model", di.Model);
+            propertyCollection.AddComponentProperty(base.componentName, "swVersion", di.SoftwareVersion);
+            propertyCollection.AddComponentProperty(base.componentName, "osName", di.OperatingSystemName);
+            propertyCollection.AddComponentProperty(base.componentName, "processorArchitecture", di.ProcessorArchitecture);
+            propertyCollection.AddComponentProperty(base.componentName, "processorManufacturer", di.ProcessorManufacturer);
+            propertyCollection.AddComponentProperty(base.componentName, "totalMemory", di.TotalMemory);
+            propertyCollection.AddComponentProperty(base.componentName, "totalStorage", di.TotalStorage);
 
-            await base.client.UpdateReportedPropertiesAsync(propertyCollection.Instance);
-            Console.WriteLine($"DeviceInformationInterface: sent {propertyCollection.Instance.Count} properties.");
+            await base.client.UpdateReportedPropertiesAsync(propertyCollection);
+            Console.WriteLine($"DeviceInformationInterface: sent {propertyCollection.Count} properties.");
         }
     }
 

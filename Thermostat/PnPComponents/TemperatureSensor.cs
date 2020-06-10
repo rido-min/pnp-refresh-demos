@@ -1,13 +1,10 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
-using Microsoft.VisualBasic;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using PnPConvention;
 using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Thermostat.PnPConvention;
 
 namespace Thermostat.PnPComponents
 {
@@ -22,12 +19,12 @@ namespace Thermostat.PnPComponents
 
     class TemperatureSensor : PnPComponent
     {
+        ILogger logger;
         public event EventHandler<TemperatureEventArgs> OnTargetTempReceived;
 
-        
-
-        public TemperatureSensor(DeviceClient client, string componentName) : base(client, componentName)
+        public TemperatureSensor(DeviceClient client, string componentName, ILogger log) : base(client, componentName, log)
         {
+            this.logger = log;
             base.SetPnPDesiredPropertyHandler(
                 "targetTemperature", 
                 (newValue) => 
@@ -45,30 +42,24 @@ namespace Thermostat.PnPComponents
 
         private void TriggerEventIfValueIsDouble(object newValue)
         {
-            if (double.TryParse(newValue.ToString(), out double target))
+            if (newValue != null && double.TryParse(newValue.ToString(), out double target))
             {
                 OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(target));
             }
             else
             {
-                Console.WriteLine("!!!!!!!!!!!! value is not double, skipping event" + newValue.ToString());
+                logger.LogWarning("!!!!!!!!!!!! value is not double, skipping event");
             }
         }
 
-       
-
         public async Task ReportTargetTemperatureAsync(double target)
         {
-            var twin = base.NewReportedProperties();
-            twin.Set("targetTemperature", target);
-            await this.client.UpdateReportedPropertiesAsync(twin.Instance);
+            await base.ReportProperty("targetTemperature", target);
         }
 
         public async Task ReportCurrentTemperatureAsync(double target)
         {
-            var twin = base.NewReportedProperties();
-            twin.Set("currentTemperature", target);
-            await this.client.UpdateReportedPropertiesAsync(twin.Instance);
+            await base.ReportProperty("currentTemperature", target);
         }
 
         public async Task SendTemperatureTelemetryValueAsync(double currentTemp)

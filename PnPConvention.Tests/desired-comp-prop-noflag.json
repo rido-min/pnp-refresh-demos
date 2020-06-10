@@ -1,0 +1,7 @@
+{
+  "tempSensor1": {
+    "targetTemperature": {
+      "value" :  1.23
+    }
+  }
+}

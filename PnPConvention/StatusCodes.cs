@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Thermostat.PnPConvention
+namespace PnPConvention
 {
     public enum StatusCodes // for property updates
     {

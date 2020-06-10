@@ -3,7 +3,7 @@ using Microsoft.Azure.Devices.Shared;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Thermostat.PnPConvention;
+using PnPConvention;
 
 namespace Thermostat.PnPComponents
 {
@@ -15,13 +15,13 @@ namespace Thermostat.PnPComponents
 
         public async Task ReportSdkInfoPropertiesAsync()
         {
-            PnPPropertyCollection propertyCollection = base.NewReportedProperties();
-            propertyCollection.Set("language", "C# 8.0");
-            propertyCollection.Set("version", "Device Client 1.25.0");
-            propertyCollection.Set("vendor", "Microsoft");
+            var propertyCollection = new TwinCollection();
+            propertyCollection.AddComponentProperty(base.componentName, "language", "C# 8.0");
+            propertyCollection.AddComponentProperty(base.componentName, "version", "Device Client 1.25.0");
+            propertyCollection.AddComponentProperty(base.componentName, "vendor", "Microsoft");
             
-            await base.client.UpdateReportedPropertiesAsync(propertyCollection.Instance);
-            Console.WriteLine($"SdkInformationInterface: sent {propertyCollection.Instance.Count} properties.");
+            await base.client.UpdateReportedPropertiesAsync(propertyCollection);
+            Console.WriteLine($"SdkInformationInterface: sent {propertyCollection.Count} properties.");
         }
     }
 }

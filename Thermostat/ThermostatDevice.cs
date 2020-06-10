@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Devices.Client;
+﻿using Microsoft.Azure.Amqp.Framing;
+using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -11,9 +12,9 @@ namespace Thermostat
     {
         const string modelId = "dtmi:com:example:Thermostat;1";
 
-        string _connectionString;
-        private readonly ILogger _logger;
-        private CancellationToken _quitSignal;
+        string connectionString;
+        private readonly ILogger logger;
+        private CancellationToken quitSignal;
 
         DeviceClient deviceClient;
 
@@ -24,18 +25,18 @@ namespace Thermostat
         DeviceInformation deviceInfo;
         SdkInformationInterface sdkInfo;
 
-        public ThermostatDevice(string connectionString, ILogger logger, CancellationToken cancellationToken)
+        public ThermostatDevice(string connectionString, ILogger logger, CancellationToken quitSignal)
         {
-            _quitSignal = cancellationToken;
-            _logger = logger;
-            _connectionString = connectionString;
+            this.quitSignal = quitSignal;
+            this.logger = logger;
+            this.connectionString = connectionString;
         }
 
         public async Task RunDeviceAsync()
         {
-            deviceClient = DeviceClient.CreateFromConnectionString(_connectionString + ";ModelId=" + modelId, TransportType.Mqtt);
+            deviceClient = DeviceClient.CreateFromConnectionString(connectionString + ";ModelId=" + modelId, TransportType.Mqtt);
           
-            tempSensor = new TemperatureSensor(deviceClient, "tempSensor1");
+            tempSensor = new TemperatureSensor(deviceClient, "tempSensor1", logger);
             diag = new DiagnosticsInterface(deviceClient, "diag");
             deviceInfo = new DeviceInformation(deviceClient, "deviceInfo");
             sdkInfo = new SdkInformationInterface(deviceClient, "sdkInfo");
@@ -50,12 +51,12 @@ namespace Thermostat
 
             await Task.Run(async () =>
             {
-                while (!_quitSignal.IsCancellationRequested)
+                while (!quitSignal.IsCancellationRequested)
                 {
                     await tempSensor.SendTemperatureTelemetryValueAsync(CurrentTemperature);
                     await diag.SendWorkingTelemetryAsync(Environment.WorkingSet);
 
-                    _logger.LogInformation("Sending workingset and temp " + CurrentTemperature);
+                    logger.LogInformation("Sending workingset and temp " + CurrentTemperature);
                     await Task.Delay(5000);
                 }
             });
@@ -64,6 +65,7 @@ namespace Thermostat
        
         private async Task ProcessTempUpdateAsync(double targetTemp)
         {
+            logger.LogWarning($"Ajusting temp from {CurrentTemperature} to {targetTemp}");
             // gradually increase current temp to target temp
             double step = (targetTemp - CurrentTemperature) / 10d;
             for (int i = 9; i >= 0; i--)
@@ -71,9 +73,9 @@ namespace Thermostat
                 CurrentTemperature = targetTemp - step * (double)i;
                 await tempSensor.SendTemperatureTelemetryValueAsync(CurrentTemperature);
                 await tempSensor.ReportCurrentTemperatureAsync(CurrentTemperature);
-                _logger.LogWarning("Current Temp Adjusted to: " + CurrentTemperature.ToString());
                 await Task.Delay(1000);
             }
+            logger.LogWarning($"Adjustment complete");
         }
 
 
@@ -81,7 +83,7 @@ namespace Thermostat
         {
             for (int i = 0; i < e.Delay; i++)
             {
-                _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
+                logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
                 Task.Delay(1000).Wait();
             }
             CurrentTemperature = 0;
@@ -90,7 +92,7 @@ namespace Thermostat
 
         private void TempSensor_OnTargetTempReceived(object sender, TemperatureEventArgs ea)
         {
-            _logger.LogWarning("TargetTempUpdated: " + ea.Temperature);
+            logger.LogWarning("TargetTempUpdated: " + ea.Temperature);
             this.ProcessTempUpdateAsync(ea.Temperature).Wait();
         }
 
