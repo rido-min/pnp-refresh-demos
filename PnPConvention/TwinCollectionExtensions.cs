@@ -1,10 +1,6 @@
 ﻿using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace PnPConvention
 {
@@ -12,7 +8,12 @@ namespace PnPConvention
   {
     public static JObject GetOrCreateComponent(this TwinCollection collection, string componentName)
     {
-      if (!collection.Contains(componentName))
+      if (collection.Contains(componentName))
+      {
+        var component = collection[componentName] as JObject;
+        CheckComponentFlag(component, componentName);
+      }
+      else
       {
         JToken flag = JToken.Parse("{\"__t\" : \"c\"}");
         collection[componentName] = flag;
@@ -37,6 +38,7 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var componentJson = collection[componentName] as JObject;
+        CheckComponentFlag(componentJson, componentName);
         if (componentJson.ContainsKey(propertyName))
         {
           var propertyJson = componentJson[propertyName] as JObject;
@@ -51,6 +53,22 @@ namespace PnPConvention
         }
       }
       return result;
+    }
+
+    private static void CheckComponentFlag(JObject component, string componentName)
+    {
+      if (!component.ContainsKey("__t"))
+      {
+        throw new Exception($"Component {componentName} does not have the expected '__t' flag");
+      }
+      else
+      {
+        var flag = component["__t"];
+        if (flag.Value<string>() != "c")
+        {
+          throw new Exception($"Component {componentName} does not have the expected '__t' value");
+        }
+      }
     }
   }
 }

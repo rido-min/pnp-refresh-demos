@@ -6,7 +6,7 @@
     },
     "pnpdemo-D1": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d3;SharedAccessKey=tCWJk4L6ivQntZEvXAriTirjPzKmXcA3A5BJcD6DScs=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d4;SharedAccessKey=8Q7JytqKSofPaH2nmJDGNCVc+30HH0dZIJR1JCf4MRw=\""
     }
   }
 }

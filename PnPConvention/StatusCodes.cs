@@ -1,8 +1,6 @@
-﻿using System.Threading;
-
-namespace PnPConvention
+﻿namespace PnPConvention
 {
-    public enum StatusCodes // for property updates
+    public enum StatusCodes 
     {
         Completed = 200,
         Pending = 202,

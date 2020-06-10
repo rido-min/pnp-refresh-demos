@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,9 +13,9 @@ namespace PnPConvention
 {
   public abstract class PnPComponent
   {
-    public DeviceClient client;
+    DeviceClient client;
 
-    public readonly string componentName;
+    protected readonly string componentName;
     private readonly ILogger logger;
 
     public delegate void OnDesiredPropertyFoundCallback(object newValue);
@@ -48,28 +48,40 @@ namespace PnPConvention
       twin.AddComponentProperty(this.componentName, propertyName, propertyValue);
       await this.client.UpdateReportedPropertiesAsync(twin);
     }
-    public async Task SetPnPCommandHandler(string commandName, MethodCallback callback, object ctx)
+
+    public async Task ReportPropertyCollectionAsync(Dictionary<string, object> properties)
+    {
+      var reported = new TwinCollection();
+      foreach (var p in properties)
+      {
+        reported.AddComponentProperty(this.componentName, p.Key, p.Value);
+      }
+      await this.client.UpdateReportedPropertiesAsync(reported);
+    }
+
+    public async Task SetPnPCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
     {
       this.logger.LogTrace("Set Command Handler for " + commandName);
       await this.client.SetMethodHandlerAsync($"{this.componentName}*{commandName}", callback, ctx);
     }
 
-    public async Task<string> ReadDesiredProperty(string propertyName)
+    public async Task<string> ReadDesiredPropertyAsync(string propertyName)
     {
       this.logger.LogTrace("ReadDesiredProperty " + propertyName);
       var twin = await this.client.GetTwinAsync();
-      var result = twin.Properties.Desired.GetPropertyValue<string>(this.componentName, propertyName);
-      this.logger.LogTrace("ReadDesiredProperty returned: " + result);
-      return result;
+      var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<string>(this.componentName, propertyName);
+      await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
+      this.logger.LogTrace("ReadDesiredProperty returned: " + desiredPropertyValue);
+      return desiredPropertyValue;
     }
 
-    public void SetPnPDesiredPropertyHandler(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
+    public async Task SetPnPDesiredPropertyHandlerAsync(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
     {
       StatusCodes result = StatusCodes.NotImplemented;
       this.logger.LogTrace("Set Desired Handler for " + propertyName);
-      this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx2) =>
-      {
 
+      await this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx2) =>
+      {
         this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
         string desiredPropertyValue = desiredProperties.GetPropertyValue<string>(this.componentName, propertyName);
         result = StatusCodes.Pending;
@@ -89,19 +101,19 @@ namespace PnPConvention
           this.logger.LogTrace($"Invalid desired properties processed ");
         }
         await Task.FromResult(result);
-      }, this).Wait();
+      }, this);
     }
 
     async Task AckDesiredPropertyReadAsync(string propertyName, object payload, StatusCodes statuscode, string description, long version)
     {
-      var ack = new TwinCollection();
-      SetAck(ack, propertyName, payload, statuscode, version, description);
+      var ack = CreateAck(propertyName, payload, statuscode, version, description);
       await client.UpdateReportedPropertiesAsync(ack);
       this.logger.LogTrace($"Reported writable property [{this.componentName}] - {JsonConvert.SerializeObject(payload)}");
     }
 
-    void SetAck(TwinCollection ack, string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
+    TwinCollection CreateAck(string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
     {
+      TwinCollection ack = new TwinCollection();
       var property = new TwinCollection();
       property["value"] = value;
       property["ac"] = statusCode;
@@ -120,6 +132,7 @@ namespace PnPConvention
         root[propertyName] = property;
         ack[this.componentName] = root;
       }
+      return ack;
     }
   }
 }

@@ -5,15 +5,14 @@ using System.Threading.Tasks;
 
 namespace Thermostat
 {
-    class Program
+  class Program
+  {
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
-            var host = Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) =>
-                    services.AddHostedService<DeviceRunnerService>());
-
-            await host.RunConsoleAsync().ConfigureAwait(true);
-        }
+      var host = Host.CreateDefaultBuilder(args)
+          .ConfigureServices((hostContext, services) =>
+              services.AddHostedService<DeviceRunnerService>());
+      await host.RunConsoleAsync().ConfigureAwait(true);
     }
+  }
 }
