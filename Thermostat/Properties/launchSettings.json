@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "LegacyHub+DPS": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"ScopeId=0ne000DE9FB;X509=042f63c2ed1c9f7974bca94ef451fc0e930584e7\""
+    },
+    "pnpdemo-D1": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d1;SharedAccessKey=Ls0n4JKxt0l/GxJ/Du7Tiq190J8D53wja/joyC3MxSw=\""
+    }
+  }
+}
