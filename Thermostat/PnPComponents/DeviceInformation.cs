@@ -6,9 +6,9 @@ using Thermostat.PnPConvention;
 
 namespace Thermostat.PnPComponents
 {
-    public class DeviceInformationInterface : PnPComponent
+    public class DeviceInformation : PnPComponent
     {
-        public DeviceInformationInterface(string componentName, DeviceClient client) : base (componentName, client)
+        public DeviceInformation(DeviceClient client, string componentName) : base (client, componentName)
         {
         }
 
@@ -24,8 +24,8 @@ namespace Thermostat.PnPComponents
             propertyCollection.Set("totalMemory", di.TotalMemory);
             propertyCollection.Set("totalStorage", di.TotalStorage);
 
-            await base.client.UpdateReportedPropertiesAsync(propertyCollection);
-            Console.WriteLine($"DeviceInformationInterface: sent {propertyCollection.Count} properties.");
+            await base.client.UpdateReportedPropertiesAsync(propertyCollection.Instance);
+            Console.WriteLine($"DeviceInformationInterface: sent {propertyCollection.Instance.Count} properties.");
         }
     }
 

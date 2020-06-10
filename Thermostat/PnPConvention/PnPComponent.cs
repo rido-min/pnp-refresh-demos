@@ -13,17 +13,17 @@ namespace Thermostat.PnPConvention
 {
     public abstract class PnPComponent 
     {
-        private readonly ILogger logger;
-
-        public string componentName;
         public DeviceClient client;
+        
+        private readonly string  componentName;
+        private readonly ILogger logger;
 
         public delegate void OnDesiredPropertyFoundCallback(object newValue);
         
-        public PnPComponent(string componentname, DeviceClient client) 
-            : this(componentname, client, new NullLogger<PnPComponent>()){}
+        public PnPComponent(DeviceClient client, string componentname) 
+            : this(client, componentname, new NullLogger<PnPComponent>()){}
 
-        public PnPComponent(string componentname, DeviceClient client, ILogger log)
+        public PnPComponent(DeviceClient client, string componentname, ILogger log)
         {
             this.componentName = componentname;
             this.client = client;
@@ -56,35 +56,40 @@ namespace Thermostat.PnPConvention
 
         public void SetPnPDesiredPropertyHandler(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
         {
+            StatusCodes result = StatusCodes.NotImplemented;
             this.logger.LogTrace("Set Desired Handler for " + propertyName);
             this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx) => {
 
+                
                 this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
 
                 var pnpDesiredProperties = new PnPPropertyCollection(this.componentName, desiredProperties.ToJson());
                 string desiredPropertyValue = pnpDesiredProperties.Get(propertyName);
-                await ReportWritablePropertyAsync(propertyName, desiredPropertyValue, StatusCodes.Pending, "update in progress", desiredProperties.Version);
+                result = StatusCodes.Pending;
+                await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Pending, "update in progress", desiredProperties.Version);
 
                 if (!string.IsNullOrEmpty(desiredPropertyValue))
                 {
                     callback(desiredPropertyValue);
-                    await ReportWritablePropertyAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", desiredProperties.Version);
+                    result = StatusCodes.Completed;
+                    await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", desiredProperties.Version);
                     this.logger.LogTrace($"Desired properties processed successfully");
                 }
                 else
                 {
-                    await ReportWritablePropertyAsync(propertyName, desiredPropertyValue, StatusCodes.Invalid, "Error parsing to double", desiredProperties.Version);
-                    this.logger.LogTrace($"Desired properties processed with error");
+                    result = StatusCodes.Invalid;
+                    await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Invalid, "invalid, empty value", desiredProperties.Version);
+                    this.logger.LogTrace($"Invalid desired properties processed ");
                 }
-                await Task.FromResult("200");
+                await Task.FromResult(result);
             }, this).Wait();
         }
 
-        async Task ReportWritablePropertyAsync(string propertyName, object payload, StatusCodes statuscode, string description, long version)
+        async Task AckDesiredPropertyReadAsync(string propertyName, object payload, StatusCodes statuscode, string description, long version)
         {
-            var props = new PnPPropertyCollection(this.componentName);
-            props.Set(propertyName, payload, statuscode, version, description);
-            await client.UpdateReportedPropertiesAsync(props);
+            var ack = new PnPPropertyCollection(this.componentName);
+            SetAck(ack, propertyName, payload, statuscode, version, description);
+            await client.UpdateReportedPropertiesAsync(ack.Instance);
             Console.WriteLine($"Reported writable property [{this.componentName}] - {JsonConvert.SerializeObject(payload)}");
         }
 
@@ -96,6 +101,28 @@ namespace Thermostat.PnPConvention
             message.ContentType = "application/json";
             message.ContentEncoding = "utf-8";
             await this.client.SendEventAsync(message);
+        }
+
+        void SetAck(PnPPropertyCollection ack, string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
+        {            
+            var property = new TwinCollection();
+            property["value"] = value;
+            property["ac"] = statusCode;
+            property["av"] = statusVersion;
+            if (!string.IsNullOrEmpty(statusDescription)) property["ad"] = statusDescription;
+
+            if (ack.Instance.Contains(this.componentName))
+            {
+                JToken token = JToken.FromObject(property);
+                ack.Instance[this.componentName][propertyName] = token;
+            }
+            else
+            {
+                TwinCollection root = new TwinCollection();
+                root["__t"] = "c"; // TODO: Review, should the ACK require the flag
+                root[propertyName] = property;
+                ack.Instance[this.componentName] = root;
+            }
         }
     }
 }

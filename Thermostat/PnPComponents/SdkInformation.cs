@@ -9,7 +9,7 @@ namespace Thermostat.PnPComponents
 {
     public class SdkInformationInterface  : PnPComponent
     {
-        public SdkInformationInterface(string componentName, DeviceClient client) : base(componentName, client)
+        public SdkInformationInterface(DeviceClient client, string componentName) : base(client, componentName)
         {
         }
 
@@ -20,8 +20,8 @@ namespace Thermostat.PnPComponents
             propertyCollection.Set("version", "Device Client 1.25.0");
             propertyCollection.Set("vendor", "Microsoft");
             
-            await base.client.UpdateReportedPropertiesAsync(propertyCollection);
-            Console.WriteLine($"SdkInformationInterface: sent {propertyCollection.Count} properties.");
+            await base.client.UpdateReportedPropertiesAsync(propertyCollection.Instance);
+            Console.WriteLine($"SdkInformationInterface: sent {propertyCollection.Instance.Count} properties.");
         }
     }
 }

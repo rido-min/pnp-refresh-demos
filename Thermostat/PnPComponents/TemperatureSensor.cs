@@ -22,12 +22,11 @@ namespace Thermostat.PnPComponents
 
     class TemperatureSensor : PnPComponent
     {
-        
         public event EventHandler<TemperatureEventArgs> OnTargetTempReceived;
 
-        public double CurrentTemperature { get; set; } = 0d;
+        
 
-        public TemperatureSensor(string componentName, DeviceClient client) : base(componentName, client)
+        public TemperatureSensor(DeviceClient client, string componentName) : base(client, componentName)
         {
             base.SetPnPDesiredPropertyHandler(
                 "targetTemperature", 
@@ -50,6 +49,10 @@ namespace Thermostat.PnPComponents
             {
                 OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(target));
             }
+            else
+            {
+                Console.WriteLine("!!!!!!!!!!!! value is not double, skipping event" + newValue.ToString());
+            }
         }
 
        
@@ -58,14 +61,14 @@ namespace Thermostat.PnPComponents
         {
             var twin = base.NewReportedProperties();
             twin.Set("targetTemperature", target);
-            await this.client.UpdateReportedPropertiesAsync(twin);
+            await this.client.UpdateReportedPropertiesAsync(twin.Instance);
         }
 
         public async Task ReportCurrentTemperatureAsync(double target)
         {
             var twin = base.NewReportedProperties();
             twin.Set("currentTemperature", target);
-            await this.client.UpdateReportedPropertiesAsync(twin);
+            await this.client.UpdateReportedPropertiesAsync(twin.Instance);
         }
 
         public async Task SendTemperatureTelemetryValueAsync(double currentTemp)

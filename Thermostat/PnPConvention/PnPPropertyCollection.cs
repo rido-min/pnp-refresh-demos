@@ -1,76 +1,88 @@
-﻿using Microsoft.Azure.Devices.Shared;
+﻿using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 
 namespace Thermostat.PnPConvention
 {
-    public class PnPPropertyCollection : TwinCollection
+    public class PnPPropertyCollection 
     {
+        public TwinCollection Instance;
         string componentName;
         public PnPPropertyCollection(string name)
         {
             this.componentName = name;
+            Instance = new TwinCollection();
         }
 
-        public PnPPropertyCollection(string name, string twinJson) : base(twinJson)
+        public PnPPropertyCollection(string name, string twinJson) 
         {
             this.componentName = name;
+            Instance = new TwinCollection(twinJson);
         }
 
         public string Get(string propertyName)
         {
             string result = string.Empty;
-            if (base.Contains(this.componentName))
+            if (Instance.Contains(this.componentName))
             {
-                var prop = base[this.componentName][propertyName];
-                if (prop!=null && prop["value"]!=null)
+                var compJson = Instance[this.componentName];
+                if (compJson != null)
                 {
-                    var propVal = prop["value"];
-                    result = Convert.ToString(propVal); //TODO: review if we should return string
+                    WarnIfDoesNotHaveTheFlag(compJson);
+                    
+                    if (compJson.ContainsKey(propertyName))
+                    {
+                        var prop = compJson[propertyName];
+                        if (prop["value"] != null)
+                        {
+                            var propVal = prop["value"];
+                            result = Convert.ToString(propVal); //TODO: review if we should return string
+                        }
+                    }
                 }
             }
             return result;
         }
 
+        private void WarnIfDoesNotHaveTheFlag(JObject compJson)
+        {
+            if (compJson.ContainsKey("__t"))
+            {
+                var flagValue = compJson.Value<string>("__t");
+                if (flagValue!="c")
+                {
+                    Console.WriteLine("!!!!! Invalid flag value !!!!!!!!!!!!!" + compJson.ToString());
+                    Console.ReadLine();
+                }
+            }
+            else
+            {
+                Console.WriteLine("!!!!! Component without flag !!!!!!!!!!!!!" + compJson.ToString());
+                Console.ReadLine();
+            }
+        }
+
         public void Set(string propertyName, object value)
         {
-            
+
             var property = JToken.FromObject(new { value });
 
             //TODO: Review how to update with PATCH syntax
-            if (base.Contains(this.componentName))
+            if (Instance.Contains(this.componentName))
             {
-                base[this.componentName][propertyName] = property;
+                Instance[this.componentName][propertyName] = property;
             }
             else
             {
                 TwinCollection root = new TwinCollection();
                 root["__t"] = "c";
                 root[propertyName] = property;
-                base[this.componentName] = root;
+                Instance[this.componentName] = root;
             }
         }
 
-        public void Set(string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription)
-        {
-            
-            var property = new TwinCollection();
-            property["value"] = value;
-            property["sc"] = statusCode;
-            property["sv"] = statusVersion;
-            property["sd"] = statusDescription;
-
-            if (base.Contains(this.componentName))
-            {
-                JToken token = JToken.FromObject(property);
-                base[this.componentName][propertyName] = token;
-            }
-            else
-            {
-                TwinCollection root = new TwinCollection();
-                root[propertyName] = property;
-                base[this.componentName] = root;
-            }
-        }
+       
     }
 }

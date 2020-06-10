@@ -21,7 +21,7 @@ namespace Thermostat.PnPComponents
     { 
         public event EventHandler<RebootCommandEventArgs> OnRebootCommand;
 
-        public DiagnosticsInterface(string componentName, DeviceClient client) : base(componentName, client)
+        public DiagnosticsInterface(DeviceClient client, string componentName) : base(client, componentName)
         {
             base.SetPnPCommandHandler("reboot", (MethodRequest req, object ctx) =>
             {
@@ -33,7 +33,7 @@ namespace Thermostat.PnPComponents
                 }
                 else
                 {
-                    OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(1));
+                    OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(1)); // default value?
                 }    
                 return Task.FromResult(new MethodResponse(200));
             }, this).Wait();
