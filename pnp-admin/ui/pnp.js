@@ -55,19 +55,19 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
   }
 
   if (!deviceId || deviceId.length < 1) {
-    document.getElementById('app').innerHTML = 'Device Id was not found in the querystring.'
+    document.getElementById('errorMsg').innerHTML = 'Device Id was not found in the querystring.'
     return
   }
 
   const modelId = await apiClient.getModelId(deviceId)
   if (!modelId || modelId.length < 5) {
-    document.getElementById('app').innerHTML = `Model Id not found for device ${deviceId}`
+    document.getElementById('errorMsg').innerHTML = `Model Id not found for device ${deviceId}`
     return
   }
 
   const modelJson = await apiClient.getModel(modelId)
   if (!modelJson) {
-    document.getElementById('app').innerHTML = `Model not found for ModelID ${modelId}`
+    document.getElementById('errorMsg').innerHTML = `Model not found for ModelID ${modelId}`
     return
   }
 

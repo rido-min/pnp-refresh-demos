@@ -11,7 +11,7 @@ namespace Thermostat
 {
     class ThermostatDevice
     {
-        const string modelId = "dtmi:com:example:simplethermostat;2";
+        const string modelId = "dtmi:com:example:simplethermostat;2.1.2";
 
         string _connectionString;
         private readonly ILogger _logger;
@@ -44,7 +44,10 @@ namespace Thermostat
                 if (double.TryParse(desiredPropertyValue, out double targetTemperature))
                 {
                     _logger.LogWarning("=====================> TargetTempUpdated: " + targetTemperature);
-                     await this.ProcessTempUpdateAsync(targetTemperature);
+
+                    await ReportWritablePropertyAsync("targetTemperature", targetTemperature, 200, "targetTemperature  Updated", desiredProperties.Version);
+                    await this.ProcessTempUpdateAsync(targetTemperature);
+
                 }
                 await Task.FromResult("200");
             }, null);
@@ -62,10 +65,11 @@ namespace Thermostat
                   return await Task.FromResult(new MethodResponse(200));
               }, null);
 
-            await ReadDesiredPropertiesAsync();
 
             await Task.Run(async () =>
             {
+                await ReportCurrentTemperature();
+                await ReadDesiredPropertiesAsync();
                 while (!_quitSignal.IsCancellationRequested)
                 {
                     await SendTelemetryValueAsync(CurrentTemperature, "temperature");
@@ -100,6 +104,12 @@ namespace Thermostat
             }
         }
 
+        async Task ReportCurrentTemperature()
+        {
+            await deviceClient.UpdateReportedPropertiesAsync(
+                new TwinCollection("{ currentTemperature : " + CurrentTemperature + "}"));
+        }
+
 
         private async Task ProcessTempUpdateAsync(double targetTemp)
         {
@@ -112,6 +122,7 @@ namespace Thermostat
                 //await SendTelemetryValueAsync(CurrentTemperature, "temperature");
                 await Task.Delay(500);
             }
+            await ReportCurrentTemperature();
         }
 
         public async Task SendTelemetryValueAsync(double currentTemp, string schema)
@@ -132,6 +143,24 @@ namespace Thermostat
                 await deviceClient.SendEventAsync(message);
             }
             catch { Console.WriteLine(); }
+        }
+
+        async Task ReportWritablePropertyAsync(string propertyName, object payload, int statuscode, string description, long version)
+        {
+            //var root = new TwinCollection();
+            var propertyVal = new TwinCollection();
+            var valtc = new TwinCollection();
+            valtc["value"] = payload;
+            valtc["sc"] = statuscode;
+            valtc["sd"] = description;
+            valtc["sv"] = version;
+            propertyVal[propertyName] = valtc;
+            //root[this.componentName] = propertyVal;
+
+            //var reportedVal = root;
+
+            await deviceClient.UpdateReportedPropertiesAsync(propertyVal);
+            Console.WriteLine($"Reported writable property [{propertyName}] - {JsonConvert.SerializeObject(payload)}");
         }
     }
 }

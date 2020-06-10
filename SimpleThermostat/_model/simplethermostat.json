@@ -1,6 +1,6 @@
 {
   "@context": "dtmi:dtdl:context;2",
-  "@id": "dtmi:com:example:simplethermostat;1",
+  "@id": "dtmi:com:example:simplethermostat;2",
   "@type": "Interface",
   "displayName": "Simple thermostat ",
   "contents": [

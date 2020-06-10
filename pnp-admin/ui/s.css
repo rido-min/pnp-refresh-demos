@@ -6,6 +6,15 @@ body {
   display:none;
 }
 
+.chart {
+  position: absolute;
+  top: 50px;
+  left: 600px;
+  height: 70vh;
+  width: 50vw;
+  border: 2px solid silver;
+}
+
 .elbowRoom {
   margin: 10px;
 }
@@ -13,17 +22,20 @@ body {
 .tile {
   padding: 10px;
   width: min-content;
-  background-color: blue;
+  background-color: cornflowerblue;
   color: white;
   text-align: right;
+  flex-direction: column;
 }
 
 .tile-container {
-  padding: 5px
+  padding: 5px;
+  display: flex;
+
 }
 
 .tile-num-big {
-  font-size: 56px;
+  font-size: 46px;
 }
 
 .tile-name {

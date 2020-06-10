@@ -112,7 +112,7 @@ namespace Refrigerator
             async Task ReportProps()
             {
                 var props = new TwinCollection();
-                props["SerialNumber"] = "XDre3243245345-2";
+                props["SerialNumber"] = "0032434";
                 props["LastInitDateTime"] = DateTime.Now.ToUniversalTime();
                 await deviceClient.UpdateReportedPropertiesAsync(props);
             }
@@ -143,7 +143,7 @@ namespace Refrigerator
                     await SendTelemetryValueAsync(payload);
                     _logger.LogInformation("Sending CurrentTemperature: " + payload.temp);
                     await Task.Delay(RefreshInterval * 1000);
-                    //MemoryLeak.FillMemory();
+                    MemoryLeak.FillMemory();
                 }
             });
         }

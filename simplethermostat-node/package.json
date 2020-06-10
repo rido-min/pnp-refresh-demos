@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node -r dotenv/config index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "azure-iot-device": "^1.15.0",
-    "azure-iot-device-mqtt": "^1.14.0"
+    "azure-iot-device-mqtt": "^1.14.1"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }

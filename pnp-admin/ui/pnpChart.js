@@ -10,7 +10,12 @@ const getChartData = (telNames) => {
 }
 
 const getChartOptions = (telNames) => {
-  const chartOptions = { scales: { yAxes: [] } }
+  const chartOptions = {
+    maintainAspectRatio: false,
+    scales: {
+      yAxes: []
+    }
+  }
   telNames.forEach(t => {
     chartOptions.scales.yAxes.push(
       {
