@@ -61,6 +61,20 @@ namespace PnPConvention.Tests
       var propVal = twinCollection.GetPropertyValue<double>("notfound", "NotFound");
       Assert.Equal(0, propVal);
     }
+
+    [Fact]
+    public void AddPropertyToAnExistingComponent()
+    {
+      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-novalue.json");
+      TwinCollection twinCollection = new TwinCollection(json);
+      twinCollection.AddComponentProperty("tempSensor1", "newProperty", true);
+      TwinCollection updatedCollection = new TwinCollection(twinCollection.ToJson());
+      var result = twinCollection.GetPropertyValue<bool>("tempSensor1", "newProperty");
+      Assert.True(result);
+    }
+
+
+
     [Fact]
     public void InitComponent()
     {

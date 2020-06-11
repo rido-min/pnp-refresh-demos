@@ -43,7 +43,7 @@ namespace PnPConvention
 
     public async Task ReportProperty(string propertyName, object propertyValue)
     {
-      logger.LogTrace("Reporting " + propertyName);
+      this.logger.LogTrace("Reporting " + propertyName);
       var twin = new TwinCollection();
       twin.AddComponentProperty(this.componentName, propertyName, propertyValue);
       await this.client.UpdateReportedPropertiesAsync(twin);
@@ -92,7 +92,7 @@ namespace PnPConvention
           callback(desiredPropertyValue);
           result = StatusCodes.Completed;
           await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", desiredProperties.Version);
-          this.logger.LogTrace($"Desired properties processed successfully");
+          this.logger.LogInformation($"Desired properties processed successfully");
         }
         else
         {

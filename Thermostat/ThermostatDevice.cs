@@ -12,9 +12,9 @@ namespace Thermostat
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
 
-    string connectionString;
-    private readonly ILogger logger;
-    private CancellationToken quitSignal;
+    readonly string connectionString;
+    readonly ILogger logger;
+    readonly CancellationToken quitSignal;
 
     DeviceClient deviceClient;
 
@@ -34,7 +34,8 @@ namespace Thermostat
 
     public async Task RunDeviceAsync()
     {
-      deviceClient = DeviceClient.CreateFromConnectionString(connectionString + ";ModelId=" + modelId, TransportType.Mqtt);
+      deviceClient = DeviceClient.CreateFromConnectionString(connectionString , 
+          TransportType.Mqtt, new ClientOptions { ModelId = modelId } );
 
       tempSensor = new TemperatureSensor(deviceClient, "tempSensor1", logger);
       diag = new DiagnosticsInterface(deviceClient, "diag");
