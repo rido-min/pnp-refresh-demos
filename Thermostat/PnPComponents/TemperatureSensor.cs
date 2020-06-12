@@ -23,7 +23,7 @@ namespace Thermostat.PnPComponents
 
     public TemperatureSensor(DeviceClient client, string componentName, ILogger log) : base(client, componentName, log)
     {
-      base.SetPnPDesiredPropertyHandlerAsync(
+      base.SetPnPDesiredPropertyHandlerAsync<double>(
           "targetTemperature",
           (newValue) =>
           {

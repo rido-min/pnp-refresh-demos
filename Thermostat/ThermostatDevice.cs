@@ -23,7 +23,7 @@ namespace Thermostat
     TemperatureSensor tempSensor;
     DiagnosticsInterface diag;
     DeviceInformation deviceInfo;
-    SdkInformationInterface sdkInfo;
+    SdkInformation sdkInfo;
 
     public ThermostatDevice(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
@@ -40,12 +40,12 @@ namespace Thermostat
       tempSensor = new TemperatureSensor(deviceClient, "tempSensor1", logger);
       diag = new DiagnosticsInterface(deviceClient, "diag");
       deviceInfo = new DeviceInformation(deviceClient, "deviceInfo");
-      sdkInfo = new SdkInformationInterface(deviceClient, "sdkInfo");
+      sdkInfo = new SdkInformation(deviceClient, "sdkInfo");
 
       diag.OnRebootCommand += Diag_OnRebootCommand;
       tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;
 
-      await deviceInfo.ReportDeviceInfoPropertiesAsync(ThisDeviceInfo);
+      await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
       await sdkInfo.ReportSdkInfoPropertiesAsync();
 
       await tempSensor.InitAsync();
@@ -96,24 +96,6 @@ namespace Thermostat
     {
       logger.LogWarning("TargetTempUpdated: " + ea.Temperature);
       this.ProcessTempUpdateAsync(ea.Temperature).Wait();
-    }
-
-    DeviceInfo ThisDeviceInfo
-    {
-      get
-      {
-        return new DeviceInfo
-        {
-          Manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-          Model = Environment.OSVersion.Platform.ToString(),
-          SoftwareVersion = Environment.OSVersion.VersionString,
-          OperatingSystemName = Environment.GetEnvironmentVariable("OS"),
-          ProcessorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"),
-          ProcessorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-          TotalStorage = 123,// System.IO.DriveInfo.GetDrives()[0].TotalSize,
-          TotalMemory = Environment.WorkingSet
-        };
-      }
     }
   }
 }

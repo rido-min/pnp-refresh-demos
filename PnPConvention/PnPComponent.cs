@@ -75,7 +75,7 @@ namespace PnPConvention
       return desiredPropertyValue;
     }
 
-    public async Task SetPnPDesiredPropertyHandlerAsync(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
+    public async Task SetPnPDesiredPropertyHandlerAsync<T>(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
     {
       StatusCodes result = StatusCodes.NotImplemented;
       this.logger.LogTrace("Set Desired Handler for " + propertyName);
@@ -83,11 +83,11 @@ namespace PnPConvention
       await this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx2) =>
       {
         this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
-        string desiredPropertyValue = desiredProperties.GetPropertyValue<string>(this.componentName, propertyName);
+        T desiredPropertyValue = desiredProperties.GetPropertyValue<T>(this.componentName, propertyName);
         result = StatusCodes.Pending;
         await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Pending, "update in progress", desiredProperties.Version);
 
-        if (!string.IsNullOrEmpty(desiredPropertyValue))
+        if (desiredPropertyValue!=null)
         {
           callback(desiredPropertyValue);
           result = StatusCodes.Completed;

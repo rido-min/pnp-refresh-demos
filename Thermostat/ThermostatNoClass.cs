@@ -46,40 +46,15 @@ namespace Thermostat
       deviceInfo = new PnPComponent(deviceClient, "deviceInfo");
       sdkInfo = new PnPComponent(deviceClient, "sdkInfo");
 
-      await tempSensor.SetPnPDesiredPropertyHandlerAsync("targetTemperature", async (newValue) =>
-          {
-            if (newValue != null && double.TryParse(newValue.ToString(), out double target))
-            {
-              await this.ProcessTempUpdateAsync(target);
-            }
-          }, this);
+      await deviceInfo.ReportPropertyCollectionAsync(DeviceInfo.ThisDeviceInfo.ToDictionary());
 
-      await deviceInfo.ReportPropertyCollectionAsync(ThisDeviceInfo.ToDictionary());
-      
-      var sdkInfoProps = new Dictionary<string, object>(3);
-      sdkInfoProps.Add("language", "C# 8.0");
-      sdkInfoProps.Add("version", "Device Client 1.25.0");
-      sdkInfoProps.Add("vendor", "Microsoft");
-      await sdkInfo.ReportPropertyCollectionAsync(sdkInfoProps);
-
-      await diag.SetPnPCommandHandlerAsync("reboot", (MethodRequest req, object ctx) => 
-      {
-        int delay = 0;
-        var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value");
-        if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
-        {
-          for (int i = 0; i < delay; i++)
-          {
-            logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-            Task.Delay(1000).Wait();
-          }
-          CurrentTemperature = 0;
-          this.ProcessTempUpdateAsync(21).Wait();
-        }
-        return Task.FromResult(new MethodResponse(200));
-      }, this);
-
+      await tempSensor.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", tempSensor_tergetTemperature_UpdateHandler, this);
       var targetTemperature = await tempSensor.ReadDesiredPropertyAsync<double>("targetTemperature");
+      await this.ProcessTempUpdateAsync(targetTemperature);
+
+      await sdkInfo.ReportPropertyCollectionAsync(SdkInformation.ThisSdkInfo);
+
+      await diag.SetPnPCommandHandlerAsync("reboot", Diag_RebootCommandHadler, this);
 
       await Task.Run(async () =>
       {
@@ -94,6 +69,15 @@ namespace Thermostat
         }
       });
     }
+
+    private void tempSensor_tergetTemperature_UpdateHandler(object newValue)
+    {
+        if (newValue != null && double.TryParse(newValue.ToString(), out double target))
+        {
+          this.ProcessTempUpdateAsync(target).Wait();
+        }
+    }
+
 
     private async Task ProcessTempUpdateAsync(double targetTemp)
     {
@@ -110,22 +94,21 @@ namespace Thermostat
       logger.LogWarning($"Adjustment complete");
     }
 
-    DeviceInfo ThisDeviceInfo
+    private async Task<MethodResponse> Diag_RebootCommandHadler(MethodRequest req, object ctx)
     {
-      get
+      int delay = 0;
+      var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value"); // Review if we need the commandRequest wrapper
+      if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
       {
-        return new DeviceInfo
+        for (int i = 0; i < delay; i++)
         {
-          Manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-          Model = Environment.OSVersion.Platform.ToString(),
-          SoftwareVersion = Environment.OSVersion.VersionString,
-          OperatingSystemName = Environment.GetEnvironmentVariable("OS"),
-          ProcessorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"),
-          ProcessorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-          TotalStorage = 123,// System.IO.DriveInfo.GetDrives()[0].TotalSize,
-          TotalMemory = Environment.WorkingSet
-        };
+          logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
+          await Task.Delay(1000);
+        }
+        CurrentTemperature = 0;
+        await this.ProcessTempUpdateAsync(21);
       }
+      return new MethodResponse(200);
     }
   }
 }

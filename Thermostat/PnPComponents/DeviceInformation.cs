@@ -45,5 +45,23 @@ namespace Thermostat.PnPComponents
       properties.Add("totalStorage", TotalStorage);
       return properties;
     }
+
+    public static DeviceInfo ThisDeviceInfo
+    {
+      get
+      {
+        return new DeviceInfo
+        {
+          Manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+          Model = Environment.OSVersion.Platform.ToString(),
+          SoftwareVersion = Environment.OSVersion.VersionString,
+          OperatingSystemName = Environment.GetEnvironmentVariable("OS"),
+          ProcessorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"),
+          ProcessorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+          TotalStorage = 123,// System.IO.DriveInfo.GetDrives()[0].TotalSize,
+          TotalMemory = Environment.WorkingSet
+        };
+      }
+    }
   }
 }
