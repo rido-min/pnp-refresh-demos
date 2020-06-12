@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Azure.Devices.Client;
+﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -42,12 +41,11 @@ namespace Thermostat
       deviceInfo = new DeviceInformation(deviceClient, "deviceInfo");
       sdkInfo = new SdkInformation(deviceClient, "sdkInfo");
 
-      diag.OnRebootCommand += Diag_OnRebootCommand;
-      tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;
-
       await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
       await sdkInfo.ReportSdkInfoPropertiesAsync();
-
+      diag.OnRebootCommand += Diag_OnRebootCommand;
+      
+      tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;
       await tempSensor.InitAsync();
 
       await Task.Run(async () =>

@@ -4,8 +4,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PnPConvention;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Thermostat.PnPComponents;
@@ -47,14 +45,12 @@ namespace Thermostat
       sdkInfo = new PnPComponent(deviceClient, "sdkInfo");
 
       await deviceInfo.ReportPropertyCollectionAsync(DeviceInfo.ThisDeviceInfo.ToDictionary());
+      await sdkInfo.ReportPropertyCollectionAsync(SdkInformation.ThisSdkInfo);
+      await diag.SetPnPCommandHandlerAsync("reboot", Diag_RebootCommandHadler, this);
 
       await tempSensor.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", tempSensor_tergetTemperature_UpdateHandler, this);
       var targetTemperature = await tempSensor.ReadDesiredPropertyAsync<double>("targetTemperature");
       await this.ProcessTempUpdateAsync(targetTemperature);
-
-      await sdkInfo.ReportPropertyCollectionAsync(SdkInformation.ThisSdkInfo);
-
-      await diag.SetPnPCommandHandlerAsync("reboot", Diag_RebootCommandHadler, this);
 
       await Task.Run(async () =>
       {
@@ -69,15 +65,6 @@ namespace Thermostat
         }
       });
     }
-
-    private void tempSensor_tergetTemperature_UpdateHandler(object newValue)
-    {
-        if (newValue != null && double.TryParse(newValue.ToString(), out double target))
-        {
-          this.ProcessTempUpdateAsync(target).Wait();
-        }
-    }
-
 
     private async Task ProcessTempUpdateAsync(double targetTemp)
     {
@@ -110,5 +97,14 @@ namespace Thermostat
       }
       return new MethodResponse(200);
     }
+
+    private void tempSensor_tergetTemperature_UpdateHandler(object newValue)
+    {
+      if (newValue != null && double.TryParse(newValue.ToString(), out double target))
+      {
+        this.ProcessTempUpdateAsync(target).Wait();
+      }
+    }
+
   }
 }

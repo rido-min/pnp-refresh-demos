@@ -1,8 +1,0 @@
-{
-  "tempSensor1": {
-    "__t": "c",
-    "targetTemperature": {
-      "value" :  1.23
-    }
-  }
-}

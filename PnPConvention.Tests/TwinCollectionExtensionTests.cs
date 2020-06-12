@@ -1,5 +1,4 @@
 using Microsoft.Azure.Devices.Shared;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
@@ -12,7 +11,16 @@ namespace PnPConvention.Tests
     [Fact]
     public void GetPropertyFromComponentAsDouble()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-double.json");
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.23
+          }
+        }
+      }";
+
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
       Assert.Equal(1.23, propVal);
@@ -21,12 +29,18 @@ namespace PnPConvention.Tests
     [Fact]
     public void GetPropertyWithoutFlagDoesRaiseException()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-noflag.json");
+      string json = @"
+      {
+        tempSensor1: {
+          targetTemperature: {
+            value : 1.23
+          }
+        }
+      }";
       TwinCollection twinCollection = new TwinCollection(json);
       try
       {
         var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
-
       }
       catch (Exception ex)
       {
@@ -38,7 +52,14 @@ namespace PnPConvention.Tests
     [Fact]
     public void GetPropertyReturnsDefaultIfPropertyValueIsNotFound()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-novalue.json");
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {}
+        }
+      }";
+
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
       Assert.Equal(0, propVal);
@@ -47,16 +68,32 @@ namespace PnPConvention.Tests
     [Fact]
     public void GetPropertyReturnsDefaultIfPropertyNotFound()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-novalue.json");
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.23
+          }
+        }
+      }";
+
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "NotFound");
       Assert.Equal(0, propVal);
     }
 
     [Fact]
-    public void GetPropertyReturnsDefaultIfComponent()
+    public void GetPropertyReturnsDefaultIfCompoNotFound()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-novalue.json");
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {}
+        }
+      }";
+
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("notfound", "NotFound");
       Assert.Equal(0, propVal);
@@ -65,7 +102,13 @@ namespace PnPConvention.Tests
     [Fact]
     public void AddPropertyToAnExistingComponent()
     {
-      string json = File.ReadAllText(@"..\..\..\desired-comp-prop-novalue.json");
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {}
+        }
+      }";
       TwinCollection twinCollection = new TwinCollection(json);
       twinCollection.AddComponentProperty("tempSensor1", "newProperty", true);
       TwinCollection updatedCollection = new TwinCollection(twinCollection.ToJson());
@@ -86,7 +129,7 @@ namespace PnPConvention.Tests
     }
 
     [Fact]
-    public void AddComponentProp()
+    public void AddComponentPropAddsTheFlagIfNeeded()
     {
       TwinCollection collection = new TwinCollection();
       collection.AddComponentProperty("myComp", "myProp", 12.3);
