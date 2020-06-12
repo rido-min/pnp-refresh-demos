@@ -27,7 +27,7 @@ namespace Thermostat
       try
       {
         var connectionString = ValidateConfigOrDie();
-        var device = new ThermostatDevice(connectionString, logger, stoppingToken);
+        var device = new ThermostatNoClass(connectionString, logger, stoppingToken);
         await device.RunDeviceAsync();
       }
       catch (Exception ex)

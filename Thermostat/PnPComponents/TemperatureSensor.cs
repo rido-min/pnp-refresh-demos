@@ -19,12 +19,10 @@ namespace Thermostat.PnPComponents
 
   class TemperatureSensor : PnPComponent
   {
-    ILogger logger;
     public event EventHandler<TemperatureEventArgs> OnTargetTempReceived;
 
     public TemperatureSensor(DeviceClient client, string componentName, ILogger log) : base(client, componentName, log)
     {
-      this.logger = log;
       base.SetPnPDesiredPropertyHandlerAsync(
           "targetTemperature",
           (newValue) =>
@@ -36,8 +34,8 @@ namespace Thermostat.PnPComponents
 
     public async Task InitAsync()
     {
-      var initialTarget = await base.ReadDesiredPropertyAsync("targetTemperature");
-      TriggerEventIfValueIsDouble(initialTarget);
+      var initialTarget = await base.ReadDesiredPropertyAsync<double>("targetTemperature");
+      OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(initialTarget));
     }
 
     private void TriggerEventIfValueIsDouble(object newValue)

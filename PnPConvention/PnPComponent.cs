@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace PnPConvention
 {
-  public abstract class PnPComponent
+  public class PnPComponent
   {
     DeviceClient client;
 
-    protected readonly string componentName;
-    private readonly ILogger logger;
+    public readonly string componentName;
+    public readonly ILogger logger;
 
     public delegate void OnDesiredPropertyFoundCallback(object newValue);
 
@@ -65,11 +65,11 @@ namespace PnPConvention
       await this.client.SetMethodHandlerAsync($"{this.componentName}*{commandName}", callback, ctx);
     }
 
-    public async Task<string> ReadDesiredPropertyAsync(string propertyName)
+    public async Task<T> ReadDesiredPropertyAsync<T>(string propertyName)
     {
       this.logger.LogTrace("ReadDesiredProperty " + propertyName);
       var twin = await this.client.GetTwinAsync();
-      var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<string>(this.componentName, propertyName);
+      var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(this.componentName, propertyName);
       await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
       this.logger.LogTrace("ReadDesiredProperty returned: " + desiredPropertyValue);
       return desiredPropertyValue;
