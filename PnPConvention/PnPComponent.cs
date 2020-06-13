@@ -4,23 +4,21 @@ using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace PnPConvention
 {
   public class PnPComponent
   {
-    IPnPDeviceClient client;
+    readonly IPnPDeviceClient client;
 
     public readonly string componentName;
     public readonly ILogger logger;
 
-    private bool isRootComponent = false;
+    private readonly bool isRootComponent = false;
 
     public delegate void OnDesiredPropertyFoundCallback(object newValue);
 
@@ -36,7 +34,7 @@ namespace PnPConvention
 
     internal PnPComponent(IPnPDeviceClient client, ILogger logger)
         : this(client, string.Empty, logger) { }
-    
+
     internal PnPComponent(IPnPDeviceClient client, string compName, ILogger log)
     {
       this.isRootComponent = string.IsNullOrEmpty(compName);
@@ -84,11 +82,11 @@ namespace PnPConvention
           reported[p.Key] = p.Value;
         }
         else
-        { 
+        {
           reported.AddComponentProperty(this.componentName, p.Key, p.Value);
         }
       }
-      
+
       await this.client.UpdateReportedPropertiesAsync(reported);
     }
 
@@ -144,7 +142,7 @@ namespace PnPConvention
         result = StatusCodes.Pending;
         await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Pending, "update in progress", desiredProperties.Version);
 
-        if (desiredPropertyValue!=null)
+        if (desiredPropertyValue != null)
         {
           callback(desiredPropertyValue);
           result = StatusCodes.Completed;

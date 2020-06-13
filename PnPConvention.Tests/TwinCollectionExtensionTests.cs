@@ -1,7 +1,6 @@
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using Xunit;
 
 namespace PnPConvention.Tests

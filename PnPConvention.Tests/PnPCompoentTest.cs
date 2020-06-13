@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
-using System;
+using Microsoft.Extensions.Logging.Debug;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,14 +12,20 @@ namespace PnPConvention.Tests
 
   public class PnPComponentTest
   {
-
     MockDeviceClient mockClient;
     PnPComponent nocomp;
     PnPComponent comp;
 
     public PnPComponentTest()
     {
-      ILogger debugLogger = TestLogging.CreateLogger();
+      ILogger CreateLogger()
+      {
+        var factory = new LoggerFactory();
+        factory.AddProvider(new DebugLoggerProvider());
+        return factory.CreateLogger("test");
+      }
+
+      ILogger debugLogger = CreateLogger();
       mockClient = new MockDeviceClient();
       nocomp = new PnPComponent(mockClient, debugLogger);
       comp = new PnPComponent(mockClient, "c1", debugLogger);
@@ -94,11 +100,11 @@ namespace PnPConvention.Tests
     [Fact]
     public async Task ComponentSetMethodHandler()
     {
-      await comp.SetPnPCommandHandlerAsync("cmd", (MethodRequest req, object ctx) => 
+      await comp.SetPnPCommandHandlerAsync("cmd", (MethodRequest req, object ctx) =>
       {
-        return  Task.FromResult(new MethodResponse(0));
+        return Task.FromResult(new MethodResponse(0));
       }, this);
-      
+
       Assert.Equal("c1*cmd", mockClient.MethodSubscription);
     }
 

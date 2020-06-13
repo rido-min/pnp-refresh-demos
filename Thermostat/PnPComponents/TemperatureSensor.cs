@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Devices.Client;
-using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PnPConvention;

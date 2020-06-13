@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
-using PnPConvention;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,8 +33,8 @@ namespace Thermostat
 
     public async Task RunDeviceAsync()
     {
-      deviceClient = DeviceClient.CreateFromConnectionString(connectionString , 
-          TransportType.Mqtt, new ClientOptions { ModelId = modelId } );
+      deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
+          TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
       tempSensor = new TemperatureSensor(deviceClient, "tempSensor1", logger);
       diag = new DiagnosticsInterface(deviceClient, "diag");
@@ -45,7 +44,7 @@ namespace Thermostat
       await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
       await sdkInfo.ReportSdkInfoPropertiesAsync();
       diag.OnRebootCommand += Diag_OnRebootCommand;
-      
+
       tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;
       await tempSensor.InitAsync();
 

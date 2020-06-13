@@ -1,11 +1,8 @@
 ﻿using Microsoft.Azure.Devices.Client;
-using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PnPConvention;
 using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,10 +11,9 @@ namespace Thermostat
   class ThermostatDevice
   {
     const string modelId = "dtmi:com:example:simplethermostat;2";
-
-    string connectionString;
+    readonly string connectionString;
     private readonly ILogger logger;
-    private CancellationToken quitSignal;
+    private readonly CancellationToken quitSignal;
 
     double CurrentTemperature;
 
@@ -43,14 +39,14 @@ namespace Thermostat
 
       var targetTemperature = await component.ReadDesiredPropertyAsync<double>("targetTemperature");
       await this.ProcessTempUpdateAsync(targetTemperature);
-      
+
       await Task.Run(async () =>
       {
         while (!quitSignal.IsCancellationRequested)
         {
           await component.SendTelemetryValueAsync("{temperature:" + CurrentTemperature + "," +
-                                                  " workingSet: " + Environment.WorkingSet +"}");
-          
+                                                  " workingSet: " + Environment.WorkingSet + "}");
+
           logger.LogInformation("Sending CurrentTemperature and workingset" + CurrentTemperature);
           await Task.Delay(1000);
         }
@@ -64,7 +60,7 @@ namespace Thermostat
       double step = (targetTemp - CurrentTemperature) / 10d;
       for (int i = 9; i >= 0; i--)
       {
-        CurrentTemperature = targetTemp - step * (double)i;
+        CurrentTemperature = targetTemp - step * i;
         await component.SendTelemetryValueAsync("{temperature:" + CurrentTemperature + "}");
         await component.ReportPropertyAsync("currentTemperature", CurrentTemperature);
         await Task.Delay(1000);

@@ -9,7 +9,7 @@ namespace PnPConvention
   [ExcludeFromCodeCoverage]
   internal class PnPDeviceClient : IPnPDeviceClient
   {
-    
+
     DeviceClient client;
     IPnPDeviceClient mockClient;
     public PnPDeviceClient(IPnPDeviceClient mockClient)
@@ -36,7 +36,7 @@ namespace PnPConvention
 
     public async Task SendEventAsync(Message message)
     {
-      if (client==null)
+      if (client == null)
       {
         await mockClient.SendEventAsync(message);
       }

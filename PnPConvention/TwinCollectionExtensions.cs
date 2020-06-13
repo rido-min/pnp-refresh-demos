@@ -68,7 +68,7 @@ namespace PnPConvention
             var propertyValue = propertyJson["value"];
             result = propertyValue.Value<T>();
           }
-        } 
+        }
         else
         {
           result = collection[propertyName].Value;

@@ -105,6 +105,5 @@ namespace Thermostat
         this.ProcessTempUpdateAsync(target).Wait();
       }
     }
-
   }
 }

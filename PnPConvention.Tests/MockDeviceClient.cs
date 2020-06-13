@@ -35,7 +35,7 @@ namespace PnPConvention.Tests
       MethodSubscription = methodName;
       MethodCallback = methodHandler;
     }
-    
+
     public TwinCollection ReportedCollection;
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public async Task UpdateReportedPropertiesAsync(TwinCollection collection)
