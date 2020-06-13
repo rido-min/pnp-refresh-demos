@@ -52,12 +52,12 @@ namespace Thermostat.PnPComponents
 
     public async Task ReportTargetTemperatureAsync(double target)
     {
-      await base.ReportProperty("targetTemperature", target);
+      await base.ReportPropertyAsync("targetTemperature", target);
     }
 
     public async Task ReportCurrentTemperatureAsync(double target)
     {
-      await base.ReportProperty("currentTemperature", target);
+      await base.ReportPropertyAsync("currentTemperature", target);
     }
 
     public async Task SendTemperatureTelemetryValueAsync(double currentTemp)

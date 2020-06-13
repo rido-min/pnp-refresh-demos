@@ -27,6 +27,35 @@ namespace PnPConvention.Tests
     }
 
     [Fact]
+    public void GetRootPropertyWithValue()
+    {
+      string json = @"
+      {
+         targetTemperature: {
+            value : 1.23
+          }        
+      }";
+
+      TwinCollection twinCollection = new TwinCollection(json);
+      var propVal = twinCollection.GetPropertyValue<double>("targetTemperature");
+      Assert.Equal(1.23, propVal);
+    }
+
+    [Fact]
+    public void GetRootPropertyWithNoValue()
+    {
+      string json = @"
+      {
+         targetTemperature: 1.23
+      }";
+
+      TwinCollection twinCollection = new TwinCollection(json);
+      var propVal = twinCollection.GetPropertyValue<double>("targetTemperature");
+      Assert.Equal(1.23, propVal);
+    }
+
+
+    [Fact]
     public void GetPropertyWithoutFlagDoesRaiseException()
     {
       string json = @"

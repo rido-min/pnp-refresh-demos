@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace PnPConvention
 {
@@ -18,6 +19,8 @@ namespace PnPConvention
     public readonly string componentName;
     public readonly ILogger logger;
 
+    private bool isRootComponent = false;
+
     public delegate void OnDesiredPropertyFoundCallback(object newValue);
 
     public PnPComponent(DeviceClient client, string componentname)
@@ -25,27 +28,43 @@ namespace PnPConvention
 
     public PnPComponent(DeviceClient client, string componentname, ILogger log)
     {
+      this.isRootComponent = string.IsNullOrEmpty(componentName);
       this.componentName = componentname;
       this.client = client;
       this.logger = log;
       this.logger.LogInformation("New PnPComponent for " + componentname);
+
+      this.client.SetConnectionStatusChangesHandler((ConnectionStatus status, ConnectionStatusChangeReason reason) =>
+      {
+        this.logger.LogWarning(status + " " + reason);
+      });
     }
 
     public async Task SendTelemetryValueAsync(string serializedTelemetry)
     {
       this.logger.LogTrace($"Sending Telemetry [${serializedTelemetry}]");
       var message = new Message(Encoding.UTF8.GetBytes(serializedTelemetry));
-      message.Properties.Add("$.sub", this.componentName);
+      if (!this.isRootComponent)
+      {
+        message.Properties.Add("$.sub", this.componentName);
+      }
       message.ContentType = "application/json";
       message.ContentEncoding = "utf-8";
       await this.client.SendEventAsync(message);
     }
 
-    public async Task ReportProperty(string propertyName, object propertyValue)
+    public async Task ReportPropertyAsync(string propertyName, object propertyValue)
     {
       this.logger.LogTrace("Reporting " + propertyName);
       var twin = new TwinCollection();
-      twin.AddComponentProperty(this.componentName, propertyName, propertyValue);
+      if (isRootComponent)
+      {
+        twin[propertyName] = propertyValue;
+      }
+      else
+      {
+        twin.AddComponentProperty(this.componentName, propertyName, propertyValue);
+      }
       await this.client.UpdateReportedPropertiesAsync(twin);
     }
 
@@ -54,22 +73,46 @@ namespace PnPConvention
       var reported = new TwinCollection();
       foreach (var p in properties)
       {
-        reported.AddComponentProperty(this.componentName, p.Key, p.Value);
+        if (this.isRootComponent)
+        {
+          reported[p.Key] = p.Value;
+        }
+        else
+        { 
+          reported.AddComponentProperty(this.componentName, p.Key, p.Value);
+        }
       }
+      
       await this.client.UpdateReportedPropertiesAsync(reported);
     }
 
     public async Task SetPnPCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
     {
       this.logger.LogTrace("Set Command Handler for " + commandName);
-      await this.client.SetMethodHandlerAsync($"{this.componentName}*{commandName}", callback, ctx);
+      if (isRootComponent)
+      {
+        await this.client.SetMethodHandlerAsync(commandName, callback, ctx);
+      }
+      else
+      {
+        await this.client.SetMethodHandlerAsync($"{this.componentName}*{commandName}", callback, ctx);
+      }
+
     }
 
     public async Task<T> ReadDesiredPropertyAsync<T>(string propertyName)
     {
       this.logger.LogTrace("ReadDesiredProperty " + propertyName);
       var twin = await this.client.GetTwinAsync();
-      var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(this.componentName, propertyName);
+      T desiredPropertyValue;
+      if (isRootComponent)
+      {
+        desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(propertyName);
+      }
+      else
+      {
+        desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(this.componentName, propertyName);
+      }
       await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
       this.logger.LogTrace("ReadDesiredProperty returned: " + desiredPropertyValue);
       return desiredPropertyValue;
@@ -83,7 +126,15 @@ namespace PnPConvention
       await this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx2) =>
       {
         this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
-        T desiredPropertyValue = desiredProperties.GetPropertyValue<T>(this.componentName, propertyName);
+        T desiredPropertyValue;
+        if (isRootComponent)
+        {
+          desiredPropertyValue = desiredProperties.GetPropertyValue<T>(propertyName);
+        }
+        else
+        {
+          desiredPropertyValue = desiredProperties.GetPropertyValue<T>(this.componentName, propertyName);
+        }
         result = StatusCodes.Pending;
         await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Pending, "update in progress", desiredProperties.Version);
 
@@ -114,23 +165,23 @@ namespace PnPConvention
     TwinCollection CreateAck(string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
     {
       TwinCollection ack = new TwinCollection();
-      var property = new TwinCollection();
-      property["value"] = value;
-      property["ac"] = statusCode;
-      property["av"] = statusVersion;
-      if (!string.IsNullOrEmpty(statusDescription)) property["ad"] = statusDescription;
 
-      if (ack.Contains(this.componentName))
+      var ackProps = new TwinCollection();
+      ackProps["value"] = value;
+      ackProps["ac"] = statusCode;
+      ackProps["av"] = statusVersion;
+      if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
+
+      if (isRootComponent)
       {
-        JToken token = JToken.FromObject(property);
-        ack[this.componentName][propertyName] = token;
+        ack[propertyName] = ackProps;
       }
       else
       {
-        TwinCollection root = new TwinCollection();
-        root["__t"] = "c"; // TODO: Review, should the ACK require the flag
-        root[propertyName] = property;
-        ack[this.componentName] = root;
+        TwinCollection ackChildren = new TwinCollection();
+        ackChildren["__t"] = "c"; // TODO: Review, should the ACK require the flag
+        ackChildren[propertyName] = ackProps;
+        ack[this.componentName] = ackChildren;
       }
       return ack;
     }

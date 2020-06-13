@@ -55,6 +55,28 @@ namespace PnPConvention
       return result;
     }
 
+    public static T GetPropertyValue<T>(this TwinCollection collection, string propertyName)
+    {
+      T result = default(T);
+      if (collection.Contains(propertyName))
+      {
+        var propertyJson = collection[propertyName] as JObject;
+        if (propertyJson != null)
+        {
+          if (propertyJson.ContainsKey("value"))
+          {
+            var propertyValue = propertyJson["value"];
+            result = propertyValue.Value<T>();
+          }
+        } 
+        else
+        {
+          result = collection[propertyName].Value;
+        }
+      }
+      return result;
+    }
+
     private static void CheckComponentFlag(JObject component, string componentName)
     {
       if (!component.ContainsKey("__t"))

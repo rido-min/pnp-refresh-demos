@@ -75,7 +75,7 @@ namespace Thermostat
       {
         CurrentTemperature = targetTemp - step * (double)i;
         await tempSensor.SendTelemetryValueAsync(JsonConvert.SerializeObject(new { temperature = CurrentTemperature }));
-        await tempSensor.ReportProperty("currentTemperature", CurrentTemperature);
+        await tempSensor.ReportPropertyAsync("currentTemperature", CurrentTemperature);
         await Task.Delay(1000);
       }
       logger.LogWarning($"Adjustment complete");
