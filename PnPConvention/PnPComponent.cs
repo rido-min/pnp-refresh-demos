@@ -9,12 +9,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PnPConvention
 {
   public class PnPComponent
   {
-    DeviceClient client;
+    IPnPDeviceClient client;
 
     public readonly string componentName;
     public readonly ILogger logger;
@@ -23,21 +24,26 @@ namespace PnPConvention
 
     public delegate void OnDesiredPropertyFoundCallback(object newValue);
 
-    public PnPComponent(DeviceClient client, string componentname)
-        : this(client, componentname, new NullLogger<PnPComponent>()) { }
+    [ExcludeFromCodeCoverage]
+    public PnPComponent(DeviceClient client)
+        : this(new PnPDeviceClient(client), string.Empty, new NullLogger<PnPComponent>()) { }
+    [ExcludeFromCodeCoverage]
+    public PnPComponent(DeviceClient client, string componentName)
+        : this(new PnPDeviceClient(client), componentName, new NullLogger<PnPComponent>()) { }
+    [ExcludeFromCodeCoverage]
+    public PnPComponent(DeviceClient client, string componentName, ILogger logger)
+        : this(new PnPDeviceClient(client), componentName, logger) { }
 
-    public PnPComponent(DeviceClient client, string componentname, ILogger log)
+    internal PnPComponent(IPnPDeviceClient client, ILogger logger)
+        : this(client, string.Empty, logger) { }
+    
+    internal PnPComponent(IPnPDeviceClient client, string compName, ILogger log)
     {
-      this.isRootComponent = string.IsNullOrEmpty(componentName);
-      this.componentName = componentname;
+      this.isRootComponent = string.IsNullOrEmpty(compName);
+      this.componentName = compName;
       this.client = client;
       this.logger = log;
-      this.logger.LogInformation("New PnPComponent for " + componentname);
-
-      this.client.SetConnectionStatusChangesHandler((ConnectionStatus status, ConnectionStatusChangeReason reason) =>
-      {
-        this.logger.LogWarning(status + " " + reason);
-      });
+      this.logger.LogInformation("New PnPComponent for " + compName);
     }
 
     public async Task SendTelemetryValueAsync(string serializedTelemetry)

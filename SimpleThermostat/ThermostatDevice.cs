@@ -36,7 +36,7 @@ namespace Thermostat
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
         TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      component = new PnPComponent(deviceClient, "");
+      component = new PnPComponent(deviceClient);
 
       await component.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", root_tergetTemperature_UpdateHandler, this);
       await component.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);

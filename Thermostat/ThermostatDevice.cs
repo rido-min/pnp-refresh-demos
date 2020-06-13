@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
+using PnPConvention;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

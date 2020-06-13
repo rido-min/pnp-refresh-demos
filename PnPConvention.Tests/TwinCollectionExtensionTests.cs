@@ -75,7 +75,29 @@ namespace PnPConvention.Tests
       {
         Assert.Equal("Component tempSensor1 does not have the expected '__t' flag", ex.Message);
       }
-      
+    }
+
+    [Fact]
+    public void GetPropertyWithInvalidFlagDoesRaiseException()
+    {
+      string json = @"
+      {
+        tempSensor1: {
+          __t : 'invalid',
+          targetTemperature: {
+            value : 1.23
+          }
+        }
+      }";
+      TwinCollection twinCollection = new TwinCollection(json);
+      try
+      {
+        var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
+      }
+      catch (Exception ex)
+      {
+        Assert.Equal("Component tempSensor1 does not have the expected '__t' value", ex.Message);
+      }
     }
 
     [Fact]
