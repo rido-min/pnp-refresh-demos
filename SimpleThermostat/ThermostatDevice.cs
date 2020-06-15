@@ -34,7 +34,7 @@ namespace Thermostat
 
       component = new PnPComponent(deviceClient);
 
-      await component.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", root_tergetTemperature_UpdateHandler, this);
+      await component.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", root_targetTemperature_UpdateHandler, this);
       await component.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
 
       var targetTemperature = await component.ReadDesiredPropertyAsync<double>("targetTemperature");
@@ -85,7 +85,7 @@ namespace Thermostat
       return new MethodResponse(200);
     }
 
-    private void root_tergetTemperature_UpdateHandler(object newValue)
+    private void root_targetTemperature_UpdateHandler(object newValue)
     {
       if (newValue != null && double.TryParse(newValue.ToString(), out double target))
       {

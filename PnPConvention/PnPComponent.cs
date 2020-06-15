@@ -26,6 +26,9 @@ namespace PnPConvention
     public PnPComponent(DeviceClient client)
         : this(new PnPDeviceClient(client), string.Empty, new NullLogger<PnPComponent>()) { }
     [ExcludeFromCodeCoverage]
+    public PnPComponent(DeviceClient client, ILogger logger)
+        : this(new PnPDeviceClient(client), string.Empty, logger) { }
+    [ExcludeFromCodeCoverage]
     public PnPComponent(DeviceClient client, string componentName)
         : this(new PnPDeviceClient(client), componentName, new NullLogger<PnPComponent>()) { }
     [ExcludeFromCodeCoverage]
