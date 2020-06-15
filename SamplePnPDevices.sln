@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleThermostat", "SimpleT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Refrigerator", "Refrigerator\Refrigerator.csproj", "{A79209D6-552B-40B2-A366-692EA7A397E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceRunner", "DeviceRunner\DeviceRunner.csproj", "{CF8D187A-30FE-456C-A331-7AE76F6325A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A79209D6-552B-40B2-A366-692EA7A397E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A79209D6-552B-40B2-A366-692EA7A397E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A79209D6-552B-40B2-A366-692EA7A397E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

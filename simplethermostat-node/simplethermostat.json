@@ -1,6 +1,6 @@
 {
   "@context": "dtmi:dtdl:context;2",
-  "@id": "dtmi:{company}:simplethermostat;1",
+  "@id": "dtmi:com:example:simplethermostat;1",
   "@type": "Interface",
   "displayName": "simplethermostat",
   "contents": [

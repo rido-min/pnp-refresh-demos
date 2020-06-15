@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Devices.Client;
+﻿using DeviceRunner;
+using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -7,13 +8,13 @@ using Thermostat.PnPComponents;
 
 namespace Thermostat
 {
-  class ThermostatDevice
+  class ThermostatDevice : IRunnableDevice
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
 
-    readonly string connectionString;
-    readonly ILogger logger;
-    readonly CancellationToken quitSignal;
+    string connectionString;
+    ILogger logger;
+    CancellationToken quitSignal;
 
     DeviceClient deviceClient;
 
@@ -24,15 +25,12 @@ namespace Thermostat
     DeviceInformation deviceInfo;
     SdkInformation sdkInfo;
 
-    public ThermostatDevice(string connectionString, ILogger logger, CancellationToken quitSignal)
+    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.quitSignal = quitSignal;
       this.logger = logger;
       this.connectionString = connectionString;
-    }
 
-    public async Task RunDeviceAsync()
-    {
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
           TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 

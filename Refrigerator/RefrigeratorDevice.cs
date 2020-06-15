@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Devices.Client;
+﻿using DeviceRunner;
+using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PnPConvention;
@@ -8,27 +9,27 @@ using System.Threading.Tasks;
 
 namespace Refrigerator
 {
-  class RefrigeratorDevice
+  class RefrigeratorDevice : IRunnableDevice
   {
     const string modelId = "dtmi:dev:rido:refrigerator;1";
-    readonly string connectionString;
-    private readonly ILogger logger;
-    private readonly CancellationToken quitSignal;
+    string connectionString;
+    ILogger logger;
+    CancellationToken quitSignal;
 
     DeviceClient deviceClient;
     PnPComponent refrigerator;
     readonly int defaultRefreshInterval = 1;
     int RefreshInterval;
-
-    public RefrigeratorDevice(string connectionString, ILogger logger, CancellationToken cancellationToken)
+    public RefrigeratorDevice()
     {
-      quitSignal = cancellationToken;
-      this.logger = logger;
-      this.connectionString = connectionString;
     }
 
-    public async Task RunDeviceAsync()
+    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken cancellationToken)
     {
+      this.quitSignal = cancellationToken;
+      this.logger = logger;
+      this.connectionString = connectionString;
+
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt,
         new ClientOptions { ModelId = modelId });
 

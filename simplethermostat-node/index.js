@@ -4,7 +4,7 @@ const connectionString = process.env.DEVICE_CONNECTION_STRING
 const deviceClient = Client.fromConnectionString(connectionString, iotHubTransport)
 
 ;(async () => {
-  deviceClient.setOptions({ modelId: '' })
+  deviceClient.setOptions({ modelId: 'dtmi:test:version:dev01' })
   deviceClient.on('error', (err) => console.error(err))
 
   await deviceClient.open((err, res) => {
@@ -22,7 +22,7 @@ const deviceClient = Client.fromConnectionString(connectionString, iotHubTranspo
           humidity: 17
         }
       }
-      console.log(t.properties)
+      // console.log(t.properties)
       t.properties.reported.update(patch, (e) => console.log(e))
     })
     .catch(e => console.log(e))
