@@ -24,7 +24,7 @@
       "description": "Current temperature on the device",
       "displayName": "Temperature",
       "name": "temp",
-      "schema": "int"
+      "schema": "integer"
     },
     {
       "@type": "Command",
