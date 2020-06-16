@@ -12,38 +12,32 @@ namespace Refrigerator
   class RefrigeratorDevice : IRunnableDevice
   {
     const string modelId = "dtmi:dev:rido:refrigerator;1";
-    string connectionString;
+    
     ILogger logger;
-    CancellationToken quitSignal;
 
     DeviceClient deviceClient;
-    PnPComponent refrigerator;
     readonly int defaultRefreshInterval = 1;
     int RefreshInterval;
-    public RefrigeratorDevice()
-    {
-    }
 
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken cancellationToken)
+    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
-      this.quitSignal = cancellationToken;
+    
       this.logger = logger;
-      this.connectionString = connectionString;
-
+      
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt,
         new ClientOptions { ModelId = modelId });
 
-      refrigerator = new PnPComponent(deviceClient, logger);
+      var refrigerator = new PnPComponent(deviceClient, logger);
 
       await refrigerator.SetPnPCommandHandlerAsync("Reset", async (MethodRequest req, object ctx) =>
       {
-        Console.WriteLine("============> Processing Reset");
+        logger.LogWarning("============> Processing Reset");
         MemoryLeak.FreeMemory();
         await refrigerator.ReportPropertyAsync("LastInitDateTime", DateTime.Now.ToUniversalTime());
         return await Task.FromResult(new MethodResponse(200));
       }, null);
 
-      await refrigerator.SetPnPDesiredPropertyHandlerAsync<int>("RefreshInterval", (object newValue) =>
+      await refrigerator.SetPnPDesiredPropertyHandlerAsync<int>("RefreshInterval", (int newValue) =>
       {
         if (int.TryParse(newValue.ToString(), out int refreshInterval))
         {

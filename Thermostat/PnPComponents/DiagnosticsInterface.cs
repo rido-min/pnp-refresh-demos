@@ -23,16 +23,12 @@ namespace Thermostat.PnPComponents
     {
       base.SetPnPCommandHandlerAsync("reboot", (MethodRequest req, object ctx) =>
       {
-        int delay = 0;
-        var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value");
+        var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value.delay");
+        int delay = delayVal.Value<int>();
         if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
-        {
-          OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(delay));
-        }
-        else
-        {
-          OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(1)); // default value?
-        }
+        
+        OnRebootCommand?.Invoke(this, new RebootCommandEventArgs(delay));
+        
         return Task.FromResult(new MethodResponse(200));
       }, this).Wait();
     }

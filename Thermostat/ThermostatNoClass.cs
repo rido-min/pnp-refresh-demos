@@ -15,9 +15,7 @@ namespace Thermostat
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
 
-    string connectionString;
     ILogger logger;
-    CancellationToken quitSignal;
 
     DeviceClient deviceClient;
 
@@ -28,16 +26,9 @@ namespace Thermostat
     PnPComponent deviceInfo;
     PnPComponent sdkInfo;
 
-    public ThermostatNoClass()
-    {
-
-    }
-
     public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
-      this.quitSignal = quitSignal;
       this.logger = logger;
-      this.connectionString = connectionString;
 
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
           TransportType.Mqtt, new ClientOptions { ModelId = modelId });
@@ -86,27 +77,23 @@ namespace Thermostat
 
     private async Task<MethodResponse> Diag_RebootCommandHadler(MethodRequest req, object ctx)
     {
-      int delay = 0;
-      var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value"); // Review if we need the commandRequest wrapper
-      if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
+      var delayParam = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value.delay"); // Review if we need the commandRequest wrapper
+      int delay = delayParam.Value<int>();
+      
+      for (int i = 0; i < delay; i++)
       {
-        for (int i = 0; i < delay; i++)
-        {
-          logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-          await Task.Delay(1000);
-        }
-        CurrentTemperature = 0;
-        await this.ProcessTempUpdateAsync(21);
+        logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
+        await Task.Delay(1000);
       }
+      CurrentTemperature = 0;
+      await this.ProcessTempUpdateAsync(21);
+      
       return new MethodResponse(200);
     }
 
-    private void tempSensor_tergetTemperature_UpdateHandler(object newValue)
+    private void tempSensor_tergetTemperature_UpdateHandler(double newValue)
     {
-      if (newValue != null && double.TryParse(newValue.ToString(), out double target))
-      {
-        this.ProcessTempUpdateAsync(target).Wait();
-      }
+       this.ProcessTempUpdateAsync(newValue).Wait();
     }
   }
 }

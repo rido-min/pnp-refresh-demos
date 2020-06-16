@@ -9,33 +9,23 @@ using System.Threading.Tasks;
 
 namespace Thermostat
 {
-  class ThermostatDevice : IRunnableDevice
+  class SimpleThermostatDevice : IRunnableDevice
   {
     const string modelId = "dtmi:com:example:simplethermostat;2";
-    string connectionString;
-    ILogger logger;
-    CancellationToken quitSignal;
-
     double CurrentTemperature;
 
+    ILogger logger;
     DeviceClient deviceClient;
     PnPComponent component;
 
-    public ThermostatDevice()
+    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
-      
-    }
-
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken cancellationToken)
-    {
-      this.quitSignal = cancellationToken;
       this.logger = logger;
-      this.connectionString = connectionString;
 
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
         TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      component = new PnPComponent(deviceClient);
+      component = new PnPComponent(deviceClient, logger);
 
       await component.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", root_targetTemperature_UpdateHandler, this);
       await component.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
@@ -88,12 +78,9 @@ namespace Thermostat
       return new MethodResponse(200);
     }
 
-    private void root_targetTemperature_UpdateHandler(object newValue)
+    private void root_targetTemperature_UpdateHandler(double newValue)
     {
-      if (newValue != null && double.TryParse(newValue.ToString(), out double target))
-      {
-        this.ProcessTempUpdateAsync(target).Wait();
-      }
+      this.ProcessTempUpdateAsync(newValue).Wait();
     }
   }
 }

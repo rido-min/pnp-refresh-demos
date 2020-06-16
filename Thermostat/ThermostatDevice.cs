@@ -11,10 +11,7 @@ namespace Thermostat
   class ThermostatDevice : IRunnableDevice
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
-
-    string connectionString;
     ILogger logger;
-    CancellationToken quitSignal;
 
     DeviceClient deviceClient;
 
@@ -27,9 +24,8 @@ namespace Thermostat
 
     public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
-      this.quitSignal = quitSignal;
       this.logger = logger;
-      this.connectionString = connectionString;
+      
 
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
           TransportType.Mqtt, new ClientOptions { ModelId = modelId });
@@ -40,7 +36,9 @@ namespace Thermostat
       sdkInfo = new SdkInformation(deviceClient, "sdkInfo");
 
       await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
+      
       await sdkInfo.ReportSdkInfoPropertiesAsync();
+
       diag.OnRebootCommand += Diag_OnRebootCommand;
 
       tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;

@@ -44,11 +44,9 @@ namespace DeviceRunner
       }
       catch (Exception ex)
       {
-
         this.logger.LogError(ex.Message);
         this.logger.LogWarning(ex.ToString());
       }
-
     }
 
     private string ValidateConfigOrDie()

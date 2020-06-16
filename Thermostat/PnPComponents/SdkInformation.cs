@@ -14,7 +14,6 @@ namespace Thermostat.PnPComponents
     public async Task ReportSdkInfoPropertiesAsync()
     {
       await base.ReportPropertyCollectionAsync(ThisSdkInfo);
-      Console.WriteLine($"SdkInformationInterface: sent {ThisSdkInfo.Count} properties.");
     }
 
     public static Dictionary<string, object> ThisSdkInfo

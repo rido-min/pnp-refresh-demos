@@ -16,7 +16,6 @@ namespace Thermostat.PnPComponents
     {
       var properties = di.ToDictionary();
       await base.ReportPropertyCollectionAsync(properties);
-      Console.WriteLine($"DeviceInformationInterface: sent {properties.Count} properties.");
     }
   }
 

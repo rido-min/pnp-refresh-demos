@@ -26,6 +26,25 @@ namespace PnPConvention.Tests
     }
 
     [Fact]
+    public void GetPropertyFromComponentWithIncorrectType()
+    {
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.8
+          }
+        }
+      }";
+
+      TwinCollection twinCollection = new TwinCollection(json);
+      var propVal = twinCollection.GetPropertyValue<string>("tempSensor1", "targetTemperature");
+      Assert.Equal("1.8", propVal);
+    }
+
+
+    [Fact]
     public void GetRootPropertyWithValue()
     {
       string json = @"

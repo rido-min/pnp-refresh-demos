@@ -20,7 +20,7 @@ namespace PnPConvention
 
     private readonly bool isRootComponent = false;
 
-    public delegate void OnDesiredPropertyFoundCallback(object newValue);
+    public delegate void OnDesiredPropertyFoundCallback<T>(T newValue);
 
     [ExcludeFromCodeCoverage]
     public PnPComponent(DeviceClient client)
@@ -89,7 +89,6 @@ namespace PnPConvention
           reported.AddComponentProperty(this.componentName, p.Key, p.Value);
         }
       }
-
       await this.client.UpdateReportedPropertiesAsync(reported);
     }
 
@@ -104,7 +103,6 @@ namespace PnPConvention
       {
         await this.client.SetMethodHandlerAsync($"{this.componentName}*{commandName}", callback, ctx);
       }
-
     }
 
     public async Task<T> ReadDesiredPropertyAsync<T>(string propertyName)
@@ -125,7 +123,7 @@ namespace PnPConvention
       return desiredPropertyValue;
     }
 
-    public async Task SetPnPDesiredPropertyHandlerAsync<T>(string propertyName, OnDesiredPropertyFoundCallback callback, object ctx)
+    public async Task SetPnPDesiredPropertyHandlerAsync<T>(string propertyName, OnDesiredPropertyFoundCallback<T> callback, object ctx)
     {
       StatusCodes result = StatusCodes.NotImplemented;
       this.logger.LogTrace("Set Desired Handler for " + propertyName);

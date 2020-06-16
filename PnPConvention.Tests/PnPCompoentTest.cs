@@ -122,7 +122,7 @@ namespace PnPConvention.Tests
     public async Task NoComponentSetDesiredPropertyHandler()
     {
       string valueReaded = string.Empty;
-      await nocomp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (object newValue) =>
+      await nocomp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (string newValue) =>
       {
         valueReaded = newValue.ToString();
       }, this);
@@ -137,7 +137,7 @@ namespace PnPConvention.Tests
     public async Task ComponentSetDesiredPropertyHandler()
     {
       string valueReaded = string.Empty;
-      await comp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (object newValue) =>
+      await comp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (string newValue) =>
       {
         valueReaded = newValue.ToString();
       }, this);
@@ -152,7 +152,7 @@ namespace PnPConvention.Tests
     public async Task ComponentSetDesiredPropertyHandlerWithNullValue()
     {
       object valueReaded = null;
-      await comp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (object newValue) =>
+      await comp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (string newValue) =>
       {
         valueReaded = newValue;
       }, this);
@@ -165,7 +165,7 @@ namespace PnPConvention.Tests
     public async Task NoComponentSetDesiredPropertyHandlerWithNullValue()
     {
       object valueReaded = null;
-      await nocomp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (object newValue) =>
+      await nocomp.SetPnPDesiredPropertyHandlerAsync<string>("prop1", (string newValue) =>
       {
         valueReaded = newValue;
       }, this);
