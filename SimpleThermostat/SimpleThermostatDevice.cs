@@ -40,9 +40,9 @@ namespace Thermostat
           await deviceClient.SendEventAsync(
             new Message(
               Encoding.UTF8.GetBytes(
-                "{ " +
-                "   temperature:" + CurrentTemperature + "," +
-                "   workingSet:"  + Environment.WorkingSet + 
+                "{" +
+                  "\"temperature\": " + CurrentTemperature + "," +
+                  "\"workingSet\" : "  + Environment.WorkingSet + 
                 "}"))
             {
               ContentEncoding = "utf-8", 
@@ -67,10 +67,11 @@ namespace Thermostat
         await deviceClient.SendEventAsync(
           new Message(
             Encoding.UTF8.GetBytes(
-              "{ temperature:" + CurrentTemperature + "}"))
+              "{ \"temperature\":" + CurrentTemperature + "}"))
           {
             ContentEncoding = "utf-8",
-            ContentType = "application/json"
+            ContentType = "application/json",
+            MessageSchema = "temperature"
           });
 
                 
@@ -85,9 +86,8 @@ namespace Thermostat
     private async Task<MethodResponse> root_RebootCommandHadler(MethodRequest req, object ctx)
     {
       int delay = 0;
-      var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value"); // Review if we need the commandRequest wrapper
-      if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
-      {
+      var delayVal = JObject.Parse(req.DataAsJson).Value<double>(); // Review if we need the commandRequest wrapper
+      
         for (int i = 0; i < delay; i++)
         {
           logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
@@ -95,7 +95,6 @@ namespace Thermostat
         }
         CurrentTemperature = 0;
         await this.ProcessTempUpdateAsync(21);
-      }
       return new MethodResponse(200);
     }
 
