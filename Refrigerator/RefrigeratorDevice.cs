@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Refrigerator
 {
-  class RefrigeratorDevice : IRunnableDevice
+  class RefrigeratorDevice : IRunnableWithConnectionString
   {
     const string modelId = "dtmi:dev:rido:refrigerator;1";
     
@@ -19,7 +19,7 @@ namespace Refrigerator
     readonly int defaultRefreshInterval = 1;
     int RefreshInterval;
 
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
+    public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
     
       this.logger = logger;

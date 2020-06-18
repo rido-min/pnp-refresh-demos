@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace DeviceRunner
 {
-  public interface IRunnableDevice
+  public interface IRunnableWithConnectionString
   {
-    Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken cancellationToken);
+    Task RunAsync(string connectionString, ILogger logger, CancellationToken cancellationToken);
   }
 }

@@ -6,7 +6,7 @@ namespace Refrigerator
   {
     public static async Task Main(string[] args)
     {
-      await DeviceRunner.DeviceRunnerService<RefrigeratorDevice>.RunDeviceAsync(args);
+      await DeviceRunner.ConsoleRunnerService<RefrigeratorDevice>.RunDeviceAsync(args);
     }
   }
 }

@@ -15,12 +15,12 @@ namespace DeviceRunner
   /// It forces to have a /DeviceConnectionString config setting to start.
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class DeviceRunnerService<T> : BackgroundService where T : IRunnableDevice, new()
+  public class ConsoleRunnerService<T> : BackgroundService where T : IRunnableWithConnectionString, new()
   {
-    readonly ILogger<DeviceRunnerService<T>> logger;
+    readonly ILogger<ConsoleRunnerService<T>> logger;
     readonly IConfiguration configuration;
 
-    public DeviceRunnerService(ILogger<DeviceRunnerService<T>> logger, IConfiguration configuration)
+    public ConsoleRunnerService(ILogger<ConsoleRunnerService<T>> logger, IConfiguration configuration)
     {
       this.logger = logger;
       this.configuration = configuration;
@@ -29,7 +29,7 @@ namespace DeviceRunner
     {
       var host = Host.CreateDefaultBuilder(args)
              .ConfigureServices((hostContext, services) =>
-                 services.AddHostedService<DeviceRunnerService<T>>());
+                 services.AddHostedService<ConsoleRunnerService<T>>());
       await host.RunConsoleAsync().ConfigureAwait(true);
     }
 
@@ -39,13 +39,11 @@ namespace DeviceRunner
       try
       {
         var connectionString = ValidateConfigOrDie();
-        var device = new T();
-        await device.RunDeviceAsync(connectionString, logger, stoppingToken);
+        await new T().RunAsync(connectionString, logger, stoppingToken);
       }
       catch (Exception ex)
       {
-        this.logger.LogError(ex.Message);
-        this.logger.LogWarning(ex.ToString());
+        this.logger.LogError(ex, ex.Message);
       }
     }
 

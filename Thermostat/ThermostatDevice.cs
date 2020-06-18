@@ -8,7 +8,7 @@ using Thermostat.PnPComponents;
 
 namespace Thermostat
 {
-  class ThermostatDevice : IRunnableDevice
+  class ThermostatDevice : IRunnableWithConnectionString
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
     ILogger logger;
@@ -22,11 +22,10 @@ namespace Thermostat
     DeviceInformation deviceInfo;
     SdkInformation sdkInfo;
 
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
+    public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
       
-
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
           TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
@@ -36,7 +35,6 @@ namespace Thermostat
       sdkInfo = new SdkInformation(deviceClient, "sdkInfo");
 
       await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
-      
       await sdkInfo.ReportSdkInfoPropertiesAsync();
 
       diag.OnRebootCommand += Diag_OnRebootCommand;

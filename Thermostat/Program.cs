@@ -10,7 +10,7 @@ namespace Thermostat
   {
     public static async Task Main(string[] args)
     {
-      await DeviceRunnerService<ThermostatDevice>.RunDeviceAsync(args);
+      await ConsoleRunnerService<ThermostatDevice>.RunDeviceAsync(args);
     }
   }
 }

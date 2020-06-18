@@ -11,7 +11,7 @@ using Thermostat.PnPComponents;
 
 namespace Thermostat
 {
-  class ThermostatNoClass: IRunnableDevice
+  class ThermostatNoClass: IRunnableWithConnectionString
   {
     const string modelId = "dtmi:com:example:Thermostat;1";
 
@@ -26,7 +26,7 @@ namespace Thermostat
     PnPComponent deviceInfo;
     PnPComponent sdkInfo;
 
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
+    public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
 

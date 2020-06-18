@@ -22,7 +22,7 @@ namespace Thermostat
       //string cs = "HostName=rido-pnp-ppr.azure-devices.net;DeviceId=simple-01;SharedAccessKey=p4WCJcwJLlicdzi7gKLZiub3C+2LES430kA/VJabSIM=";
       //await  new SimpleThermostatDevice().RunDeviceAsync(cs, log, CancellationToken.None);
 
-      await DeviceRunnerService<SimpleThermostatDevice>.RunDeviceAsync(args);
+      await ConsoleRunnerService<SimpleThermostatDevice>.RunDeviceAsync(args);
     }
   }
 }

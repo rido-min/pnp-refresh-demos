@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Thermostat
 {
-  class SimpleThermostatDevice : IRunnableDevice
+  class SimpleThermostatDevice : IRunnableWithConnectionString
   {
     const string modelId = "dtmi:com:example:simplethermostat;2";
     double CurrentTemperature;
@@ -18,7 +18,7 @@ namespace Thermostat
     DeviceClient deviceClient;
     PnPComponent component;
 
-    public async Task RunDeviceAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
+    public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
 
