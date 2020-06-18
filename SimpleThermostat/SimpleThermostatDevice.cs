@@ -1,9 +1,10 @@
 ﻿using DeviceRunner;
 using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using PnPConvention;
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +17,6 @@ namespace Thermostat
 
     ILogger logger;
     DeviceClient deviceClient;
-    PnPComponent component;
 
     public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
@@ -25,22 +25,31 @@ namespace Thermostat
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
         TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      component = new PnPComponent(deviceClient, logger);
+      await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
+      await deviceClient.SetMethodHandlerAsync("reboot", root_RebootCommandHadler, this);
 
-      await component.SetPnPDesiredPropertyHandlerAsync<double>("targetTemperature", root_targetTemperature_UpdateHandler, this);
-      await component.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
-
-      var targetTemperature = await component.ReadDesiredPropertyAsync<double>("targetTemperature");
+      var twin = await deviceClient.GetTwinAsync();
+      double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
+      
       await this.ProcessTempUpdateAsync(targetTemperature);
 
       await Task.Run(async () =>
       {
         while (!quitSignal.IsCancellationRequested)
         {
-          await component.SendTelemetryValueAsync("{temperature:" + CurrentTemperature + "," +
-                                                  " workingSet: " + Environment.WorkingSet + "}");
+          await deviceClient.SendEventAsync(
+            new Message(
+              Encoding.UTF8.GetBytes(
+                "{ " +
+                "   temperature:" + CurrentTemperature + "," +
+                "   workingSet:"  + Environment.WorkingSet + 
+                "}"))
+            {
+              ContentEncoding = "utf-8", 
+              ContentType= "application/json"
+            });
 
-          logger.LogInformation("Sending CurrentTemperature and workingset" + CurrentTemperature);
+          logger.LogInformation("Sending CurrentTemperature and workingset " + CurrentTemperature);
           await Task.Delay(1000);
         }
       });
@@ -54,8 +63,20 @@ namespace Thermostat
       for (int i = 9; i >= 0; i--)
       {
         CurrentTemperature = targetTemp - step * i;
-        await component.SendTelemetryValueAsync("{temperature:" + CurrentTemperature + "}");
-        await component.ReportPropertyAsync("currentTemperature", CurrentTemperature);
+
+        await deviceClient.SendEventAsync(
+          new Message(
+            Encoding.UTF8.GetBytes(
+              "{ temperature:" + CurrentTemperature + "}"))
+          {
+            ContentEncoding = "utf-8",
+            ContentType = "application/json"
+          });
+
+                
+        var reported = new TwinCollection();
+        reported["currentTemperature"] = CurrentTemperature;
+        await deviceClient.UpdateReportedPropertiesAsync(reported);
         await Task.Delay(1000);
       }
       logger.LogWarning($"Adjustment complete");
@@ -78,9 +99,34 @@ namespace Thermostat
       return new MethodResponse(200);
     }
 
-    private void root_targetTemperature_UpdateHandler(double newValue)
+    private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
-      this.ProcessTempUpdateAsync(newValue).Wait();
+      this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
+      double desiredPropertyValue = GetPropertyValue<double>(desiredProperties, "targetTemperature");
+      await this.ProcessTempUpdateAsync(desiredPropertyValue);
     }
+
+    T GetPropertyValue<T>(TwinCollection collection, string propertyName)
+    {
+      T result = default(T);
+      if (collection.Contains(propertyName))
+      {
+        var propertyJson = collection[propertyName] as JObject;
+        if (propertyJson != null)
+        {
+          if (propertyJson.ContainsKey("value"))
+          {
+            var propertyValue = propertyJson["value"];
+            result = propertyValue.Value<T>();
+          }
+        }
+        else
+        {
+          result = collection[propertyName].Value;
+        }
+      }
+      return result;
+    }
+
   }
 }
