@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "SimpleThermostat": {
+    "PPR": {
       "commandName": "Project",
       "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=simple-01;SharedAccessKey=p4WCJcwJLlicdzi7gKLZiub3C+2LES430kA/VJabSIM=\""
+    },
+    "SummerRefresh": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=summerrelease-test-03.private.azure-devices-int.net;DeviceId=rido-pnp-01;SharedAccessKey=rROTTxDEv9mitT1tQ0oe/vOVd03MBsKfzoVBpPKYJw8=\""
     }
   }
 }

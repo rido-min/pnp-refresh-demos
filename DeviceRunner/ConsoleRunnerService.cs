@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace DeviceRunner
 {
   /// <summary>
-  /// DeviceRunnerService uses .NET Hosting infraestructure to integrate with
+  /// ConsoleRunnerService uses .NET Hosting infraestructure to integrate with
   /// IConfiguration and ILogger from a Console application.
   /// 
   /// It forces to have a /DeviceConnectionString config setting to start.
   /// </summary>
-  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="T">Device entry point implmenting the IRunnableWithConnectionString interface</typeparam>
   public class ConsoleRunnerService<T> : BackgroundService where T : IRunnableWithConnectionString, new()
   {
     readonly ILogger<ConsoleRunnerService<T>> logger;
