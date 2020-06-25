@@ -126,7 +126,7 @@ namespace PnPConvention
     public async Task SetPnPDesiredPropertyHandlerAsync<T>(string propertyName, OnDesiredPropertyFoundCallback<T> callback, object ctx)
     {
       StatusCodes result = StatusCodes.NotImplemented;
-      this.logger.LogTrace("Set Desired Handler for " + propertyName);
+      this.logger.LogTrace($"Set Desired Handler for component: {componentName} prop: {propertyName}");
 
       await this.client.SetDesiredPropertyUpdateCallbackAsync(async (TwinCollection desiredProperties, object ctx2) =>
       {

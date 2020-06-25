@@ -1,6 +1,7 @@
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Security.Cryptography.X509Certificates;
 using Xunit;
 
 namespace PnPConvention.Tests
@@ -25,8 +26,10 @@ namespace PnPConvention.Tests
       Assert.Equal(1.23, propVal);
     }
 
+  
+
     [Fact]
-    public void GetPropertyFromComponentRequiresValue()
+    public void GetPropertyFromComponentWithoutValue()
     {
       string json = @"
       {
@@ -38,7 +41,7 @@ namespace PnPConvention.Tests
 
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
-      Assert.Equal(default(double), propVal);
+      Assert.Equal(1.23, propVal);
     }
 
 
@@ -90,8 +93,8 @@ namespace PnPConvention.Tests
     }
 
 
-    [Fact]
-    public void GetPropertyWithoutFlagDoesRaiseException()
+    // [Fact]
+    public void GetPropertyWithoutFlagReturnsDefaultValue()
     {
       string json = @"
       {
@@ -102,17 +105,12 @@ namespace PnPConvention.Tests
         }
       }";
       TwinCollection twinCollection = new TwinCollection(json);
-      try
-      {
-        var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
-      }
-      catch (Exception ex)
-      {
-        Assert.Equal("Component tempSensor1 does not have the expected '__t' flag", ex.Message);
-      }
+      
+      var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
+      Assert.Equal(default, propVal);
     }
 
-    [Fact]
+    // [Fact]
     public void GetPropertyWithInvalidFlagDoesRaiseException()
     {
       string json = @"
@@ -125,14 +123,9 @@ namespace PnPConvention.Tests
         }
       }";
       TwinCollection twinCollection = new TwinCollection(json);
-      try
-      {
-        var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
-      }
-      catch (Exception ex)
-      {
-        Assert.Equal("Component tempSensor1 does not have the expected '__t' value", ex.Message);
-      }
+      var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
+      Assert.Equal(default, propVal);
+     
     }
 
     [Fact]
@@ -225,8 +218,9 @@ namespace PnPConvention.Tests
       Assert.True(comp.ContainsKey("myProp"));
       var prop = comp["myProp"];
       Assert.NotNull(prop);
-      var propValue = prop["value"];
-      Assert.Equal(12.3, propValue.Value<double>());
+      Assert.Equal(12.3, prop);
+      //var propValue = prop["value"];
+      //Assert.Equal(12.3, propValue.Value<double>());
     }
   }
 }

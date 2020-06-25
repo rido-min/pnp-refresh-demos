@@ -14,31 +14,32 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/event-hubs": ">=5.0.2",
-    "azure-iot-digitaltwins-service": "^1.0.0-pnp-refresh.0",
-    "azure-iothub": "^1.12.0",
+    "@azure/event-hubs": "^5.2.1",
+    "azure-iot-digitaltwins-service": "^1.0.0-preview.1",
+    "azure-iothub": "^1.12.3",
     "body-parser": "^1.19.0",
     "buffer": "^5.5.0",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "live-plugin-manager": "^0.14.1",
-    "moment": "^2.24.0",
+    "moment": "^2.27.0",
     "replace-string": "^3.1.0",
     "ws": ">=7.1.2"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.9.20",
-    "@types/node": "^14.0.1",
+    "@types/chart.js": "^2.9.22",
+    "@types/node": "^14.0.13",
     "@types/vue": "^2.0.0",
-    "@types/ws": "^7.2.4",
+    "@types/ws": "^7.2.5",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.3",
     "standard": "^14.3.3"
   },
   "standard": {
     "globals": [
-      "Vue","moment"
+      "Vue",
+      "moment"
     ]
   }
 }

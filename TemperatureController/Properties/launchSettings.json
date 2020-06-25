@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "LegacyHub+DPS": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"ScopeId=0ne000DE9FB;X509=042f63c2ed1c9f7974bca94ef451fc0e930584e7\""
+    },
+    "pnpdemo-D1": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d5;SharedAccessKey=UCCEDdxv0W7XeQPBwz6Eqtww75xgVmPLRAL0ysAXL6U=\""
+    },
+    "pnp-smr-priv": {
+      "commandName": "Project",
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=summerrelease-test-03.private.azure-devices-int.net;DeviceId=rido-tempController;SharedAccessKey=GIIP/kKxmDtTBdD8RqMbNISEU/Dtce9nQKl9QoF4qXA=\""
+    }
+  }
+}

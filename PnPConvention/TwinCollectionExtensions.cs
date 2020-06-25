@@ -11,7 +11,10 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var component = collection[componentName] as JObject;
-        CheckComponentFlag(component, componentName);
+        //if (!CheckComponentFlag(component, componentName))
+        //{
+        //  return null;
+        //}  
       }
       else
       {
@@ -28,7 +31,7 @@ namespace PnPConvention
 
       if (!componentJson.ContainsKey(propertyName))
       {
-        componentJson[propertyName] = JToken.FromObject(new { value = propertyValue });
+        componentJson[propertyName] = JToken.FromObject(propertyValue);
       }
     }
 
@@ -38,7 +41,10 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var componentJson = collection[componentName] as JObject;
-        CheckComponentFlag(componentJson, componentName);
+        //if (!CheckComponentFlag(componentJson, componentName))
+        //{
+        //  return default(T);
+        //}
         if (componentJson.ContainsKey(propertyName))
         {
           var propertyJson = componentJson[propertyName] as JObject;
@@ -49,6 +55,11 @@ namespace PnPConvention
               var propertyValue = propertyJson["value"];
               result = propertyValue.Value<T>();
             }
+          }
+          else
+          {
+            var propValue = componentJson[propertyName] as JToken;
+            result = propValue.Value<T>();
           }
         }
       }
@@ -77,20 +88,24 @@ namespace PnPConvention
       return result;
     }
 
-    private static void CheckComponentFlag(JObject component, string componentName)
+    private static bool CheckComponentFlag(JObject component, string componentName)
     {
+      
       if (!component.ContainsKey("__t"))
       {
-        throw new Exception($"Component {componentName} does not have the expected '__t' flag");
+        // throw new Exception($"Component {componentName} does not have the expected '__t' flag");
+        return false;
       }
       else
       {
         var flag = component["__t"];
         if (flag.Value<string>() != "c")
         {
-          throw new Exception($"Component {componentName} does not have the expected '__t' value");
+          // throw new Exception($"Component {componentName} does not have the expected '__t' value");
+          return false;
         }
       }
+      return true;
     }
   }
 }
