@@ -21,8 +21,6 @@ namespace TemperatureController
     const string modelId = "dtmi:com:example:TemperatureController;1";
     ILogger logger;
 
-    DeviceClient deviceClient;
-
     double CurrentTemperature1 { get; set; } = 0d;
     double CurrentTemperature2 { get; set; } = 0d;
 
@@ -33,25 +31,22 @@ namespace TemperatureController
     {
       this.logger = logger;
       
-      deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
-          TransportType.Mqtt, new ClientOptions { ModelId = modelId });
-      
-      var facade = PnPFacade.CreateFromDeviceClient(deviceClient);
-
-      await facade.ReportComponentPropertyCollectionAsync("deviceInfo", DeviceInfo.ThisDeviceInfo.ToDictionary());
+      var facade = PnPFacade.CreateFromConnectionStringAndModelId(connectionString, modelId);
 
       await facade.ReportPropertyAsync("serialNumber", serialNumber);
-      await deviceClient.SetMethodHandlerAsync("reboot", root_RebootCommandHadler, deviceClient);
+      await facade.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
 
+      await facade.ReportComponentPropertyCollectionAsync("deviceInfo", DeviceInfo.ThisDeviceInfo.ToDictionary());
+      
       facade.SubscribeToComponentUpdates("thermostat1", thermostat1_OnDesiredPropertiesReceived);
-      await facade.SetPnPCommandHandlerAsync("thermostat1", "getMaxMinReport", thermostat1_GetMinMaxReportCommandHadler, this);
+      await facade.SetPnPComponentCommandHandlerAsync("thermostat1", "getMaxMinReport", thermostat1_GetMinMaxReportCommandHadler, this);
       var targetTemp1 = await facade.ReadDesiredComponentPropertyAsync<double>("thermostat1", "targetTemperature");
-      await ProcessTempUpdateAsync(targetTemp1, "thermostat1");
+      CurrentTemperature1 = targetTemp1;
 
       facade.SubscribeToComponentUpdates("thermostat2", thermostat2_OnDesiredPropertiesReceived);
-      await facade.SetPnPCommandHandlerAsync("thermostat2", "getMaxMinReport", thermostat2_GetMinMaxReportCommandHadler, this);
+      await facade.SetPnPComponentCommandHandlerAsync("thermostat2", "getMaxMinReport", thermostat2_GetMinMaxReportCommandHadler, this);
       var targetTemp2 = await facade.ReadDesiredComponentPropertyAsync<double>("thermostat2", "targetTemperature");
-      await ProcessTempUpdateAsync(targetTemp2, "thermostat2");
+      CurrentTemperature2 =  targetTemp2;
       
       await Task.Run(async () =>
       {
@@ -83,6 +78,10 @@ namespace TemperatureController
         logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
         await Task.Delay(1000);
       }
+      CurrentTemperature1 = 0;
+      CurrentTemperature2 = 0;
+      temperatureSeries1.Clear();
+      temperatureSeries2.Clear();
       return new MethodResponse(200);
     }
 
@@ -123,48 +122,18 @@ namespace TemperatureController
     {
       var targetTemp = desired.GetPropertyValue<double>("thermostat1", "targetTemperature");
       logger.LogWarning($"TargetTempUpdated on thermostat1: " + targetTemp);
-      Task.Run(async () => await this.ProcessTempUpdateAsync(targetTemp, "thermostat1"));
+      Task.Run(async () => await this.ProcessTempUpdateAsync("thermostat1", targetTemp));
     }
 
     private void thermostat2_OnDesiredPropertiesReceived(TwinCollection desired)
     {
       var targetTemp = desired.GetPropertyValue<double>("thermostat2", "targetTemperature");
       logger.LogWarning($"TargetTempUpdated on thermostat2: " + targetTemp);
-      Task.Run(async () => await this.ProcessTempUpdateAsync(targetTemp, "thermostat2"));
+      Task.Run(async () => await this.ProcessTempUpdateAsync("thermostat2", targetTemp));
     }
 
-
-
-    private void Thermostat1_OnGetMinMaxReportCommand(object sender, GetMinMaxReportCommandEventArgs e)
-    {
-      var series = temperatureSeries1.Where(t => t.Key > e.Since).ToDictionary(i => i.Key, i => i.Value);
-      
-      e.tempReport = new tempReport()
-      {
-        maxTemp = series.Values.Max<double>(),
-        minTemp = series.Values.Min<double>(),
-        avgTemp = series.Values.Average(),
-        startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-        endTime = series.Keys.Max<DateTimeOffset>().DateTime
-      };
-    }
-
-    private void Thermostat2_OnGetMinMaxReportCommand(object sender, GetMinMaxReportCommandEventArgs e)
-    {
-      var series = temperatureSeries2.Where(t => t.Key > e.Since).ToDictionary(i => i.Key, i => i.Value);
-
-      e.tempReport = new tempReport()
-      {
-        maxTemp = series.Values.Max<double>(),
-        minTemp = series.Values.Min<double>(),
-        avgTemp = series.Values.Average(),
-        startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-        endTime = series.Keys.Max<DateTimeOffset>().DateTime
-      };
-    }
-
-    private async Task ProcessTempUpdateAsync(double targetTemp, string component)
-    {
+    private async Task ProcessTempUpdateAsync(string component, double targetTemp )
+    { 
       logger.LogWarning($"Ajusting temp for {component} to {targetTemp}");
       // gradually increase current temp to target temp
       double step = 0;
@@ -178,18 +147,7 @@ namespace TemperatureController
 
         await Task.Delay(500);
       }
-      logger.LogWarning($"Adjustment complete for " + component);
-    }
-
-    private void DefaultComponent_OnRebootCommand(object sender, RebootCommandEventArgs e)
-    {
-      for (int i = 0; i < e.Delay; i++)
-      {
-        logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-        Task.Delay(1000).Wait();
-      }
-      CurrentTemperature1 = 0;
-      // Task.Run(()=>thermostat1.InitAsync());
+      logger.LogWarning($"Adjustment complete for " + component); 
     }
   }
 }

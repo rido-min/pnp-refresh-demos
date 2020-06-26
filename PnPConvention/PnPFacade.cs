@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace PnPConvention
 {
-  
   public delegate void OnDesiredPropertyFoundCallback(TwinCollection newValue);
   public sealed class PnPFacade
   {
@@ -25,6 +24,14 @@ namespace PnPConvention
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, client);
       return instance;
     }
+    public static PnPFacade CreateFromConnectionStringAndModelId(string connectionString, string modelId)
+    {
+      deviceClient = DeviceClient.CreateFromConnectionString(connectionString, 
+                                                  TransportType.Mqtt, 
+                                                  new ClientOptions() { ModelId = modelId });
+      deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
+      return instance;
+    }
 
     public void SubscribeToComponentUpdates(string componentName, OnDesiredPropertyFoundCallback callback)
     {
@@ -36,9 +43,7 @@ namespace PnPConvention
       var reported = new TwinCollection();
       foreach (var p in properties)
       {
-        
-        reported.AddComponentProperty(componentName, p.Key, p.Value);
-        
+        reported.AddComponentProperty(componentName, p.Key, p.Value); 
       }
       await deviceClient.UpdateReportedPropertiesAsync(reported);
     }
@@ -76,7 +81,12 @@ namespace PnPConvention
       await deviceClient.SendEventAsync(message);
     }
 
-    public async Task SetPnPCommandHandlerAsync(string componentName, string commandName, MethodCallback callback, object ctx)
+    public async Task SetPnPCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
+    {
+      await deviceClient.SetMethodHandlerAsync($"{commandName}", callback, ctx);
+    }
+
+    public async Task SetPnPComponentCommandHandlerAsync(string componentName, string commandName, MethodCallback callback, object ctx)
     {
       await deviceClient.SetMethodHandlerAsync($"{componentName}*{commandName}", callback, ctx);
     }
