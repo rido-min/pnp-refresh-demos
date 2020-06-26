@@ -63,6 +63,50 @@ namespace PnPConvention.Tests
       Assert.Equal("1.8", propVal);
     }
 
+    [Fact]
+    public void EnumerateComponents_OneElement()
+    {
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.8
+          }
+        }
+      }";
+
+      TwinCollection twinCollection = new TwinCollection(json);
+      var compNames = twinCollection.EnumerateComponents();
+      Assert.Single(compNames, "tempSensor1");
+    }
+
+    [Fact]
+    public void EnumerateComponents_TwoElements()
+    {
+      string json = @"
+      {
+        tempSensor1: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.8
+          }
+        },
+        tempSensor2: {
+          __t: 'c',
+          targetTemperature: {
+            value : 1.8
+          }
+        }
+      }";
+
+      TwinCollection twinCollection = new TwinCollection(json);
+      var compNames = twinCollection.EnumerateComponents();
+      Assert.Equal(2, compNames.Count);
+      Assert.Equal("tempSensor2", compNames[1]);
+    }
+
+
 
     [Fact]
     public void GetRootPropertyWithValue()

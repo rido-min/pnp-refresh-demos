@@ -10,7 +10,7 @@ namespace TemperatureController
   {
     public static async Task Main(string[] args)
     {
-      await ConsoleRunnerService<TemperatureControllerDevice>.RunDeviceAsync(args);
+      await ConsoleRunnerService<TemControl>.RunDeviceAsync(args);
     }
   }
 }

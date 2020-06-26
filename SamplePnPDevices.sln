@@ -9,13 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PnPConvention.Tests", "PnPC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleThermostat", "SimpleThermostat\SimpleThermostat.csproj", "{CF3FAF81-181D-4CAA-AB05-FC6A97AE5EE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Refrigerator", "Refrigerator\Refrigerator.csproj", "{A79209D6-552B-40B2-A366-692EA7A397E4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceRunner", "DeviceRunner\DeviceRunner.csproj", "{CF8D187A-30FE-456C-A331-7AE76F6325A8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TemperatureController", "TemperatureController\TemperatureController.csproj", "{A4D29FE5-8CEC-450A-BF81-C3E74B93BB61}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pnp-service-apis", "pnp-service-apis\pnp-service-apis.csproj", "{BB9BC814-495E-41D0-811F-9104209162A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +31,6 @@ Global
 		{CF3FAF81-181D-4CAA-AB05-FC6A97AE5EE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF3FAF81-181D-4CAA-AB05-FC6A97AE5EE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF3FAF81-181D-4CAA-AB05-FC6A97AE5EE8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A79209D6-552B-40B2-A366-692EA7A397E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A79209D6-552B-40B2-A366-692EA7A397E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A79209D6-552B-40B2-A366-692EA7A397E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A79209D6-552B-40B2-A366-692EA7A397E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF8D187A-30FE-456C-A331-7AE76F6325A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,10 +39,6 @@ Global
 		{A4D29FE5-8CEC-450A-BF81-C3E74B93BB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4D29FE5-8CEC-450A-BF81-C3E74B93BB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4D29FE5-8CEC-450A-BF81-C3E74B93BB61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB9BC814-495E-41D0-811F-9104209162A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB9BC814-495E-41D0-811F-9104209162A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB9BC814-495E-41D0-811F-9104209162A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB9BC814-495E-41D0-811F-9104209162A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

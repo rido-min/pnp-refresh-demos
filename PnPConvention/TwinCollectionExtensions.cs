@@ -1,11 +1,27 @@
 ﻿using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace PnPConvention
 {
   public static class TwinCollectionExtensions
   {
+    public static List<string> EnumerateComponents(this TwinCollection collection)
+    {
+      var jcollection = JObject.Parse(collection.ToJson());
+      var result = new List<string>();
+      foreach (var item in jcollection)
+      {
+        if (!item.Key.StartsWith("$"))
+        {
+          result.Add(item.Key);
+        }
+      }
+      return result;
+    }
+
     public static JObject GetOrCreateComponent(this TwinCollection collection, string componentName)
     {
       if (collection.Contains(componentName))

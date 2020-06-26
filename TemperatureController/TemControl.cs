@@ -1,6 +1,8 @@
 ﻿using DeviceRunner;
 using Microsoft.Azure.Devices.Client;
+using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using PnPConvention;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ using TemperatureController.PnPComponents;
 
 namespace TemperatureController
 {
-  class TemperatureControllerDevice : IRunnableWithConnectionString
+  class TemControl : IRunnableWithConnectionString
   {
     const string serialNumber = "S/N3123123";
     const string modelId = "dtmi:com:example:TemperatureController;1";
@@ -25,11 +27,7 @@ namespace TemperatureController
     Dictionary<DateTimeOffset, double> temperatureSeries1 = new Dictionary<DateTimeOffset, double>();
     Dictionary<DateTimeOffset, double> temperatureSeries2 = new Dictionary<DateTimeOffset, double>();
 
-    Thermostat thermostat1;
-    Thermostat thermostat2;
-    DeviceInformation deviceInfo;
-    DefaultComponent defaultComponent;
-
+    
     public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
@@ -37,22 +35,8 @@ namespace TemperatureController
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
           TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      deviceInfo = new DeviceInformation(deviceClient, "deviceInfo");
-      await deviceInfo.ReportDeviceInfoPropertiesAsync(DeviceInfo.ThisDeviceInfo);
+      await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback1, this);
 
-      defaultComponent = new DefaultComponent(deviceClient, logger);
-      await defaultComponent.ReportSerialNumberAsync(serialNumber);
-      defaultComponent.OnRebootCommand += DefaultComponent_OnRebootCommand;
-
-      thermostat1 = new Thermostat(deviceClient, "thermostat1", logger);
-      thermostat1.OnTargetTempReceived += Thermostat1_OnTargetTempReceived;
-      thermostat1.OnGetMinMaxReportCommand += Thermostat1_OnGetMinMaxReportCommand;
-      await thermostat1.InitAsync();
-
-      thermostat2 = new Thermostat(deviceClient, "thermostat2", logger);
-      thermostat2.OnTargetTempReceived += Thermostat2_OnTargetTempReceived;
-      thermostat2.OnGetMinMaxReportCommand += Thermostat2_OnGetMinMaxReportCommand;
-      await thermostat2.InitAsync();
 
       await Task.Run(async () =>
       {
@@ -62,9 +46,9 @@ namespace TemperatureController
           temperatureSeries1.Add(DateTime.Now, CurrentTemperature1);
           temperatureSeries2.Add(DateTime.Now, CurrentTemperature2);
 
-          await defaultComponent.SendWorkingSetTelemetryAsync(Environment.WorkingSet);
-          await thermostat1.SendTemperatureTelemetryValueAsync(CurrentTemperature1);
-          await thermostat2.SendTemperatureTelemetryValueAsync(CurrentTemperature2);
+          //await defaultComponent.SendWorkingSetTelemetryAsync(Environment.WorkingSet);
+          //await thermostat1.SendTemperatureTelemetryValueAsync(CurrentTemperature1);
+          //await thermostat2.SendTemperatureTelemetryValueAsync(CurrentTemperature2);
 
           logger.LogInformation($"Telemetry sent. t1 {CurrentTemperature1}, t2 {CurrentTemperature2}, ws:{Environment.WorkingSet}");
           await Task.Delay(1000);
@@ -72,6 +56,21 @@ namespace TemperatureController
       });
     }
 
+    private async Task DesiredPropertyUpdateCallback1(TwinCollection desiredProperties, object userContext)
+    {
+      this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
+
+      var components = desiredProperties.EnumerateComponents();
+      foreach (var comp in components)
+      {
+        if (comp == "thermostat1" || comp == "thermostat2")
+        {
+          double desiredPropertyValue = desiredProperties.GetPropertyValue<double>(comp, "targetTemperature");
+          await this.ProcessTempUpdateAsync(desiredPropertyValue, comp);
+        }
+      }
+    }
+    
     private void Thermostat1_OnTargetTempReceived(object sender, TemperatureEventArgs ea)
     {
       var comp = sender as Thermostat;
@@ -140,7 +139,7 @@ namespace TemperatureController
         Task.Delay(1000).Wait();
       }
       CurrentTemperature1 = 0;
-      Task.Run(()=>thermostat1.InitAsync());
+      // Task.Run(()=>thermostat1.InitAsync());
     }
   }
 }
