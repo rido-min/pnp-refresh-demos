@@ -1,4 +1,5 @@
 ﻿using DeviceRunner;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
@@ -27,11 +28,13 @@ namespace TemperatureController
     Dictionary<DateTimeOffset, double> temperatureSeries1 = new Dictionary<DateTimeOffset, double>();
     Dictionary<DateTimeOffset, double> temperatureSeries2 = new Dictionary<DateTimeOffset, double>();
 
+    PnPFacade facade;
+
     public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
       
-      var facade = PnPFacade.CreateFromConnectionStringAndModelId(connectionString, modelId);
+      facade = PnPFacade.CreateFromConnectionStringAndModelId(connectionString, modelId);
 
       await facade.ReportPropertyAsync("serialNumber", serialNumber);
       await facade.SetPnPCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
@@ -122,32 +125,42 @@ namespace TemperatureController
     {
       var targetTemp = desired.GetPropertyValue<double>("thermostat1", "targetTemperature");
       logger.LogWarning($"TargetTempUpdated on thermostat1: " + targetTemp);
-      Task.Run(async () => await this.ProcessTempUpdateAsync("thermostat1", targetTemp));
+      Task.Run(async () => 
+      {
+        await facade.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
+        await this.ProcessTempUpdateAsync("thermostat1", targetTemp);
+        await facade.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
+      });
     }
 
     private void thermostat2_OnDesiredPropertiesReceived(TwinCollection desired)
     {
       var targetTemp = desired.GetPropertyValue<double>("thermostat2", "targetTemperature");
       logger.LogWarning($"TargetTempUpdated on thermostat2: " + targetTemp);
-      Task.Run(async () => await this.ProcessTempUpdateAsync("thermostat2", targetTemp));
+      Task.Run(async () =>
+      {
+        await facade.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
+        await this.ProcessTempUpdateAsync("thermostat2", targetTemp);
+        await facade.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
+      });
     }
 
-    private async Task ProcessTempUpdateAsync(string component, double targetTemp )
+    private async Task ProcessTempUpdateAsync(string componentName, double targetTemp )
     { 
-      logger.LogWarning($"Ajusting temp for {component} to {targetTemp}");
+      logger.LogWarning($"Ajusting temp for {componentName} to {targetTemp}");
       // gradually increase current temp to target temp
       double step = 0;
-      if (component == "thermostat1") step = (targetTemp - CurrentTemperature1) / 10d;
-      if (component == "thermostat2") step = (targetTemp - CurrentTemperature2) / 10d;
+      if (componentName == "thermostat1") step = (targetTemp - CurrentTemperature1) / 10d;
+      if (componentName == "thermostat2") step = (targetTemp - CurrentTemperature2) / 10d;
 
       for (int i = 9; i >= 0; i--)
       {
-        if (component == "thermostat1") CurrentTemperature1 = targetTemp - step * (double)i;
-        if (component == "thermostat2") CurrentTemperature2 = targetTemp - step * (double)i;
+        if (componentName == "thermostat1") CurrentTemperature1 = targetTemp - step * (double)i;
+        if (componentName == "thermostat2") CurrentTemperature2 = targetTemp - step * (double)i;
 
         await Task.Delay(500);
       }
-      logger.LogWarning($"Adjustment complete for " + component); 
+      logger.LogWarning($"Adjustment complete for " + componentName); 
     }
   }
 }

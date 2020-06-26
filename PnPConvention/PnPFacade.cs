@@ -14,14 +14,14 @@ namespace PnPConvention
   {
     static Dictionary<string, OnDesiredPropertyFoundCallback> components = new Dictionary<string, OnDesiredPropertyFoundCallback>();
 
-    static PnPFacade(){}
+    static  PnPFacade(){}
     private PnPFacade(){}
     private static readonly PnPFacade instance = new PnPFacade();
     private static DeviceClient deviceClient;
     public static PnPFacade CreateFromDeviceClient(DeviceClient client)
     {
       deviceClient = client;
-      deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, client);
+      deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
       return instance;
     }
     public static PnPFacade CreateFromConnectionStringAndModelId(string connectionString, string modelId)
@@ -29,8 +29,26 @@ namespace PnPConvention
       deviceClient = DeviceClient.CreateFromConnectionString(connectionString, 
                                                   TransportType.Mqtt, 
                                                   new ClientOptions() { ModelId = modelId });
+
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
       return instance;
+    }
+
+    public async Task SendTelemetryValueAsync(string serializedTelemetry)
+    {
+      var message = new Message(Encoding.UTF8.GetBytes(serializedTelemetry));
+      message.ContentType = "application/json";
+      message.ContentEncoding = "utf-8";
+      await deviceClient.SendEventAsync(message);
+    }
+
+    public async Task SendComponentTelemetryValueAsync(string componentName, string serializedTelemetry)
+    {
+      var message = new Message(Encoding.UTF8.GetBytes(serializedTelemetry));
+      message.Properties.Add("$.sub", componentName);
+      message.ContentType = "application/json";
+      message.ContentEncoding = "utf-8";
+      await deviceClient.SendEventAsync(message);
     }
 
     public void SubscribeToComponentUpdates(string componentName, OnDesiredPropertyFoundCallback callback)
@@ -48,16 +66,6 @@ namespace PnPConvention
       await deviceClient.UpdateReportedPropertiesAsync(reported);
     }
 
-
-    public async Task SendComponentTelemetryValueAsync(string componentName, string serializedTelemetry)
-    {
-      var message = new Message(Encoding.UTF8.GetBytes(serializedTelemetry));
-      message.Properties.Add("$.sub", componentName);
-      message.ContentType = "application/json";
-      message.ContentEncoding = "utf-8";
-      await deviceClient.SendEventAsync(message);
-    }
-
     public async Task ReportPropertyAsync(string propertyName, object propertyValue)
     {
       var twin = new TwinCollection();
@@ -70,15 +78,6 @@ namespace PnPConvention
       var twin = new TwinCollection();
       twin.AddComponentProperty(componentName, propertyName, propertyValue);
       await deviceClient.UpdateReportedPropertiesAsync(twin);
-    }
-
-
-    public async Task SendTelemetryValueAsync(string serializedTelemetry)
-    {
-      var message = new Message(Encoding.UTF8.GetBytes(serializedTelemetry));
-      message.ContentType = "application/json";
-      message.ContentEncoding = "utf-8";
-      await deviceClient.SendEventAsync(message);
     }
 
     public async Task SetPnPCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
@@ -104,10 +103,41 @@ namespace PnPConvention
     private static Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
       //desired event should be fired for a single, so first, component.
-      var updatedComp = desiredProperties.EnumerateComponents().FirstOrDefault(); ;
-      var comp = components.Where(c => c.Key == updatedComp).FirstOrDefault();
-      comp.Value(desiredProperties);
+      var componentName = desiredProperties.EnumerateComponents().FirstOrDefault(); ;
+      var comp = components[componentName];
+      comp?.Invoke(desiredProperties); 
       return Task.FromResult(0);
+    }
+
+    public async Task AckDesiredPropertyReadAsync(string componentName, string propertyName, object payload, StatusCodes statuscode, string description, long version)
+    {
+      var ack = CreateAck(componentName, propertyName, payload, statuscode, version, description);
+      await deviceClient.UpdateReportedPropertiesAsync(ack);
+    }
+
+    private TwinCollection CreateAck(string componentName, string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
+    {
+      bool isRootComponent = string.IsNullOrEmpty(componentName);
+      TwinCollection ack = new TwinCollection();
+
+      var ackProps = new TwinCollection();
+      ackProps["value"] = value;
+      ackProps["ac"] = statusCode;
+      ackProps["av"] = statusVersion;
+      if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
+
+      if (isRootComponent)
+      {
+        ack[propertyName] = ackProps;
+      }
+      else
+      {
+        TwinCollection ackChildren = new TwinCollection();
+        ackChildren["__t"] = "c"; // TODO: Review, should the ACK require the flag
+        ackChildren[propertyName] = ackProps;
+        ack[componentName] = ackChildren;
+      }
+      return ack;
     }
   }
 }
