@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace TemperatureController
 {
-
   public class tempReport
   {
     public double maxTemp { get; set; }
