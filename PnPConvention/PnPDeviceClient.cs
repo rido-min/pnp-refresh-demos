@@ -9,9 +9,8 @@ namespace PnPConvention
   [ExcludeFromCodeCoverage]
   internal class PnPDeviceClient : IPnPDeviceClient
   {
-
-    DeviceClient client;
-    IPnPDeviceClient mockClient;
+    readonly DeviceClient client;
+    readonly IPnPDeviceClient mockClient;
     public PnPDeviceClient(IPnPDeviceClient mockClient)
     {
       this.mockClient = mockClient;

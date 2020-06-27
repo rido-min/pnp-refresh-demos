@@ -1,7 +1,5 @@
 ﻿using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace PnPConvention
@@ -74,7 +72,7 @@ namespace PnPConvention
           }
           else
           {
-            var propValue = componentJson[propertyName] as JToken;
+            var propValue = componentJson[propertyName];
             result = propValue.Value<T>();
           }
         }
@@ -106,7 +104,7 @@ namespace PnPConvention
 
     private static bool CheckComponentFlag(JObject component, string componentName)
     {
-      
+
       if (!component.ContainsKey("__t"))
       {
         // throw new Exception($"Component {componentName} does not have the expected '__t' flag");

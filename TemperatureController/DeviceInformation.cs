@@ -1,24 +1,8 @@
-﻿using Microsoft.Azure.Devices.Client;
-using PnPConvention;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace TemperatureController.PnPComponents
+namespace TemperatureController
 {
-  public class DeviceInformation : PnPComponent
-  {
-    public DeviceInformation(DeviceClient client, string componentName) : base(client, componentName)
-    {
-    }
-
-    public async Task ReportDeviceInfoPropertiesAsync(DeviceInfo di)
-    {
-      var properties = di.ToDictionary();
-      await base.ReportPropertyCollectionAsync(properties);
-    }
-  }
-
   public class DeviceInfo
   {
     public string Manufacturer { get; set; }

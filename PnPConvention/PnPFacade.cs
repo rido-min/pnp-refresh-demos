@@ -1,9 +1,7 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,23 +10,24 @@ namespace PnPConvention
   public delegate void OnDesiredPropertyFoundCallback(TwinCollection newValue);
   public sealed class PnPFacade
   {
-    static Dictionary<string, OnDesiredPropertyFoundCallback> components = new Dictionary<string, OnDesiredPropertyFoundCallback>();
+    static readonly Dictionary<string, OnDesiredPropertyFoundCallback> components = new Dictionary<string, OnDesiredPropertyFoundCallback>();
 
-    static  PnPFacade(){}
-    private PnPFacade(){}
+    static PnPFacade() { }
+    private PnPFacade() { }
     private static readonly PnPFacade instance = new PnPFacade();
-    private static DeviceClient deviceClient;
-    public static PnPFacade CreateFromDeviceClient(DeviceClient client)
+    private static IPnPDeviceClient deviceClient;
+    internal static PnPFacade CreateFromDeviceClient(IPnPDeviceClient client)
     {
       deviceClient = client;
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
       return instance;
     }
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static PnPFacade CreateFromConnectionStringAndModelId(string connectionString, string modelId)
     {
-      deviceClient = DeviceClient.CreateFromConnectionString(connectionString, 
-                                                  TransportType.Mqtt, 
-                                                  new ClientOptions() { ModelId = modelId });
+      deviceClient = new PnPDeviceClient(DeviceClient.CreateFromConnectionString(connectionString,
+                                                  TransportType.Mqtt,
+                                                  new ClientOptions() { ModelId = modelId }));
 
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
       return instance;
@@ -51,7 +50,7 @@ namespace PnPConvention
       await deviceClient.SendEventAsync(message);
     }
 
-    public void SubscribeToComponentUpdates(string componentName, OnDesiredPropertyFoundCallback callback)
+    public void SetDesiredPropertyUpdateCommandHandler(string componentName, OnDesiredPropertyFoundCallback callback)
     {
       components.Add(componentName, callback);
     }
@@ -61,7 +60,7 @@ namespace PnPConvention
       var reported = new TwinCollection();
       foreach (var p in properties)
       {
-        reported.AddComponentProperty(componentName, p.Key, p.Value); 
+        reported.AddComponentProperty(componentName, p.Key, p.Value);
       }
       await deviceClient.UpdateReportedPropertiesAsync(reported);
     }
@@ -80,12 +79,12 @@ namespace PnPConvention
       await deviceClient.UpdateReportedPropertiesAsync(twin);
     }
 
-    public async Task SetPnPCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
+    public async Task SetCommandHandlerAsync(string commandName, MethodCallback callback, object ctx)
     {
       await deviceClient.SetMethodHandlerAsync($"{commandName}", callback, ctx);
     }
 
-    public async Task SetPnPComponentCommandHandlerAsync(string componentName, string commandName, MethodCallback callback, object ctx)
+    public async Task SetComponentCommandHandlerAsync(string componentName, string commandName, MethodCallback callback, object ctx)
     {
       await deviceClient.SetMethodHandlerAsync($"{componentName}*{commandName}", callback, ctx);
     }
@@ -93,10 +92,8 @@ namespace PnPConvention
     public async Task<T> ReadDesiredComponentPropertyAsync<T>(string componentName, string propertyName)
     {
       var twin = await deviceClient.GetTwinAsync();
-      T desiredPropertyValue;
-      desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(componentName, propertyName);      
-      //await AckDesiredPropertyReadAsync(propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
-      //this.logger.LogTrace("ReadDesiredProperty returned: " + desiredPropertyValue);
+      var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(componentName, propertyName);
+      await AckDesiredPropertyReadAsync(componentName, propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
       return desiredPropertyValue;
     }
 
@@ -105,7 +102,7 @@ namespace PnPConvention
       //desired event should be fired for a single, so first, component.
       var componentName = desiredProperties.EnumerateComponents().FirstOrDefault(); ;
       var comp = components[componentName];
-      comp?.Invoke(desiredProperties); 
+      comp?.Invoke(desiredProperties);
       return Task.FromResult(0);
     }
 
@@ -117,26 +114,16 @@ namespace PnPConvention
 
     private TwinCollection CreateAck(string componentName, string propertyName, object value, StatusCodes statusCode, long statusVersion, string statusDescription = "")
     {
-      bool isRootComponent = string.IsNullOrEmpty(componentName);
       TwinCollection ack = new TwinCollection();
-
       var ackProps = new TwinCollection();
       ackProps["value"] = value;
       ackProps["ac"] = statusCode;
       ackProps["av"] = statusVersion;
       if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
-
-      if (isRootComponent)
-      {
-        ack[propertyName] = ackProps;
-      }
-      else
-      {
-        TwinCollection ackChildren = new TwinCollection();
-        ackChildren["__t"] = "c"; // TODO: Review, should the ACK require the flag
-        ackChildren[propertyName] = ackProps;
-        ack[componentName] = ackChildren;
-      }
+      TwinCollection ackChildren = new TwinCollection();
+      ackChildren["__t"] = "c"; // TODO: Review, should the ACK require the flag
+      ackChildren[propertyName] = ackProps;
+      ack[componentName] = ackChildren;
       return ack;
     }
   }

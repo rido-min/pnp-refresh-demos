@@ -1,7 +1,5 @@
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Security.Cryptography.X509Certificates;
 using Xunit;
 
 namespace PnPConvention.Tests
@@ -26,7 +24,7 @@ namespace PnPConvention.Tests
       Assert.Equal(1.23, propVal);
     }
 
-  
+
 
     [Fact]
     public void GetPropertyFromComponentWithoutValue()
@@ -137,7 +135,7 @@ namespace PnPConvention.Tests
     }
 
 
-    // [Fact]
+    [Fact(Skip = "clarify __t behavior")]
     public void GetPropertyWithoutFlagReturnsDefaultValue()
     {
       string json = @"
@@ -149,12 +147,12 @@ namespace PnPConvention.Tests
         }
       }";
       TwinCollection twinCollection = new TwinCollection(json);
-      
+
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
       Assert.Equal(default, propVal);
     }
 
-    // [Fact]
+    [Fact(Skip = "clarify __t behavior")]
     public void GetPropertyWithInvalidFlagDoesRaiseException()
     {
       string json = @"
@@ -169,7 +167,7 @@ namespace PnPConvention.Tests
       TwinCollection twinCollection = new TwinCollection(json);
       var propVal = twinCollection.GetPropertyValue<double>("tempSensor1", "targetTemperature");
       Assert.Equal(default, propVal);
-     
+
     }
 
     [Fact]

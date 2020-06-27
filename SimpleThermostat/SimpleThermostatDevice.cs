@@ -2,18 +2,31 @@
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Thermostat
 {
+  public class tempReport
+  {
+    public double maxTemp { get; set; }
+    public double minTemp { get; set; }
+    public double avgTemp { get; set; }
+    public DateTime startTime { get; set; }
+    public DateTime endTime { get; set; }
+  }
+
   class SimpleThermostatDevice : IRunnableWithConnectionString
   {
-    const string modelId = "dtmi:com:example:simplethermostat;2";
+    const string modelId = "dtmi:com:example:Thermostat;1";
     double CurrentTemperature;
+    readonly Dictionary<DateTimeOffset, double> temperatureSeries = new Dictionary<DateTimeOffset, double>();
 
     ILogger logger;
     DeviceClient deviceClient;
@@ -26,27 +39,29 @@ namespace Thermostat
         TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
-      await deviceClient.SetMethodHandlerAsync("reboot", root_RebootCommandHadler, this);
+      await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);
 
       var twin = await deviceClient.GetTwinAsync();
       double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
-      
+
       await this.ProcessTempUpdateAsync(targetTemperature);
 
       await Task.Run(async () =>
       {
         while (!quitSignal.IsCancellationRequested)
         {
+          temperatureSeries.Add(DateTime.Now, CurrentTemperature);
+
           await deviceClient.SendEventAsync(
             new Message(
               Encoding.UTF8.GetBytes(
                 "{" +
                   "\"temperature\": " + CurrentTemperature + "," +
-                  "\"workingSet\" : "  + Environment.WorkingSet + 
+                  "\"workingSet\" : " + Environment.WorkingSet +
                 "}"))
             {
-              ContentEncoding = "utf-8", 
-              ContentType= "application/json"
+              ContentEncoding = "utf-8",
+              ContentType = "application/json"
             });
 
           logger.LogInformation("Sending CurrentTemperature and workingset " + CurrentTemperature);
@@ -54,6 +69,8 @@ namespace Thermostat
         }
       });
     }
+
+
 
     private async Task ProcessTempUpdateAsync(double targetTemp)
     {
@@ -63,41 +80,25 @@ namespace Thermostat
       for (int i = 9; i >= 0; i--)
       {
         CurrentTemperature = targetTemp - step * i;
-
-        await deviceClient.SendEventAsync(
-          new Message(
-            Encoding.UTF8.GetBytes(
-              "{ \"temperature\":" + CurrentTemperature + "}"))
-          {
-            ContentEncoding = "utf-8",
-            ContentType = "application/json",
-            MessageSchema = "temperature"
-          });
-
-                
-        var reported = new TwinCollection();
-        reported["currentTemperature"] = CurrentTemperature;
-        await deviceClient.UpdateReportedPropertiesAsync(reported);
         await Task.Delay(1000);
       }
       logger.LogWarning($"Adjustment complete");
     }
 
-    private async Task<MethodResponse> root_RebootCommandHadler(MethodRequest req, object ctx)
+    private async Task<MethodResponse> root_getMaxMinReportCommandHadler(MethodRequest req, object ctx)
     {
-      int delay = 0;
-      var delayVal = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value"); // Review if we need the commandRequest wrapper
-      if (delayVal != null && int.TryParse(delayVal.Value<string>(), out delay))
+      var since = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value").Value<DateTime>();
+      var series = temperatureSeries.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
+      var report = new tempReport()
       {
-        for (int i = 0; i < delay; i++)
-        {
-          logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-          await Task.Delay(1000);
-        }
-        CurrentTemperature = 0;
-        await this.ProcessTempUpdateAsync(21);
-      }
-      return new MethodResponse(200);
+        maxTemp = series.Values.Max<double>(),
+        minTemp = series.Values.Min<double>(),
+        avgTemp = series.Values.Average(),
+        startTime = series.Keys.Min<DateTimeOffset>().DateTime,
+        endTime = series.Keys.Max<DateTimeOffset>().DateTime
+      };
+      var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
+      return await Task.FromResult(new MethodResponse(constPayload, 200));
     }
 
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
@@ -128,6 +129,5 @@ namespace Thermostat
       }
       return result;
     }
-
   }
 }

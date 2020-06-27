@@ -1,7 +1,4 @@
 ﻿using DeviceRunner;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TemperatureController
@@ -10,7 +7,7 @@ namespace TemperatureController
   {
     public static async Task Main(string[] args)
     {
-      await ConsoleRunnerService<TemControl>.RunDeviceAsync(args);
+      await ConsoleRunnerService<TemperatureControllerDevice>.RunDeviceAsync(args);
     }
   }
 }
