@@ -10,7 +10,7 @@ namespace PnPConvention
   public delegate void OnDesiredPropertyFoundCallback(TwinCollection newValue);
   public sealed class PnPClient
   {
-    static readonly Dictionary<string, OnDesiredPropertyFoundCallback> components = new Dictionary<string, OnDesiredPropertyFoundCallback>();
+    static readonly Dictionary<string, OnDesiredPropertyFoundCallback> desiredPropertyCallbacks = new Dictionary<string, OnDesiredPropertyFoundCallback>();
 
     static PnPClient() { }
     private PnPClient() { }
@@ -52,7 +52,7 @@ namespace PnPConvention
 
     public void SetDesiredPropertyUpdateCommandHandler(string componentName, OnDesiredPropertyFoundCallback callback)
     {
-      components.Add(componentName, callback);
+      desiredPropertyCallbacks.Add(componentName, callback);
     }
 
     public async Task ReportComponentPropertyCollectionAsync(string componentName, Dictionary<string, object> properties)
@@ -101,7 +101,7 @@ namespace PnPConvention
     {
       //desired event should be fired for a single, so first, component.
       var componentName = desiredProperties.EnumerateComponents().FirstOrDefault(); ;
-      var comp = components[componentName];
+      var comp = desiredPropertyCallbacks[componentName];
       comp?.Invoke(desiredProperties);
       return Task.FromResult(0);
     }
