@@ -25,10 +25,10 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var component = collection[componentName] as JObject;
-        //if (!CheckComponentFlag(component, componentName))
-        //{
-        //  return null;
-        //}  
+        if (!CheckComponentFlag(component, componentName))
+        {
+          return null;
+        }
       }
       else
       {
@@ -55,10 +55,10 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var componentJson = collection[componentName] as JObject;
-        //if (!CheckComponentFlag(componentJson, componentName))
-        //{
-        //  return default(T);
-        //}
+        if (!CheckComponentFlag(componentJson, componentName))
+        {
+          return default(T);
+        }
         if (componentJson.ContainsKey(propertyName))
         {
           var propertyJson = componentJson[propertyName] as JObject;

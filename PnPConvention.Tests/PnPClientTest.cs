@@ -8,26 +8,26 @@ using Xunit;
 
 namespace PnPConvention.Tests
 {
-  public class PnPFClientTest : IDisposable
+  public class PnPClientTest : IDisposable
   {
     MockDeviceClient mockClient;
-    PnPClient facade;
-    public PnPFClientTest()
+    PnPClient pnpClient;
+    public PnPClientTest()
     {
       mockClient = new MockDeviceClient();
-      facade = PnPClient.CreateFromDeviceClient(mockClient);
+      pnpClient = PnPClient.CreateFromDeviceClient(mockClient);
     }
 
     public void Dispose()
     {
       mockClient = null;
-      facade = null;
+      pnpClient = null;
     }
 
     [Fact]
     public async Task NoComponentReportProperty()
     {
-      await facade.ReportPropertyAsync("prop1", "val1");
+      await pnpClient.ReportPropertyAsync("prop1", "val1");
       Assert.Equal("val1", mockClient.ReportedCollection["prop1"].Value);
     }
 
@@ -38,14 +38,26 @@ namespace PnPConvention.Tests
       desiredProps.Desired = new TwinCollection(@"{c1: { __t: 'c', prop1: { value: 'val1'}}}");
       Twin desired = new Twin(desiredProps);
       mockClient.DesiredProperties = desired;
-      var result = await facade.ReadDesiredComponentPropertyAsync<string>("c1", "prop1");
+      var result = await pnpClient.ReadDesiredComponentPropertyAsync<string>("c1", "prop1");
       Assert.Equal("val1", result);
     }
 
     [Fact]
+    public async Task ComponentReadDesiredProperties_ReturnsDefaultValue_If_FlagNotFound()
+    {
+      TwinProperties desiredProps = new TwinProperties();
+      desiredProps.Desired = new TwinCollection(@"{c1: { prop1: { value: 'val1'}}}");
+      Twin desired = new Twin(desiredProps);
+      mockClient.DesiredProperties = desired;
+      var result = await pnpClient.ReadDesiredComponentPropertyAsync<string>("c1", "prop1");
+      Assert.True(string.IsNullOrEmpty(result));
+    }
+
+
+    [Fact]
     public async Task ComponentReportProperty()
     {
-      await facade.ReportComponentPropertyAsync("c1", "prop1", "val1");
+      await pnpClient.ReportComponentPropertyAsync("c1", "prop1", "val1");
       var compTwinValue = mockClient.ReportedCollection.GetPropertyValue<string>("c1", "prop1");
       Assert.Equal("val1", compTwinValue);
     }
@@ -58,7 +70,7 @@ namespace PnPConvention.Tests
         {"prop1", "val1" },
         {"prop2", "val2" }
       };
-      await facade.ReportComponentPropertyCollectionAsync("c1", props);
+      await pnpClient.ReportComponentPropertyCollectionAsync("c1", props);
       var compTwinValue1 = mockClient.ReportedCollection.GetPropertyValue<string>("c1", "prop1");
       Assert.Equal("val1", compTwinValue1);
       var compTwinValue2 = mockClient.ReportedCollection.GetPropertyValue<string>("c1", "prop2");
@@ -68,7 +80,7 @@ namespace PnPConvention.Tests
     [Fact]
     public async Task ComponentSendTelemetry()
     {
-      await facade.SendComponentTelemetryValueAsync("c1", "{t1:2}");
+      await pnpClient.SendComponentTelemetryValueAsync("c1", "{t1:2}");
       Assert.Equal("application/json", mockClient.MessageSent.ContentType);
       Assert.Equal("utf-8", mockClient.MessageSent.ContentEncoding);
       Assert.Equal("c1", mockClient.MessageSent.Properties["$.sub"]);
@@ -78,7 +90,7 @@ namespace PnPConvention.Tests
     [Fact]
     public async Task NoComponentSendTelemetry()
     {
-      await facade.SendTelemetryValueAsync("{t1:2}");
+      await pnpClient.SendTelemetryValueAsync("{t1:2}");
       Assert.Equal("application/json", mockClient.MessageSent.ContentType);
       Assert.Equal("utf-8", mockClient.MessageSent.ContentEncoding);
       Assert.False(mockClient.MessageSent.Properties.ContainsKey("$.sub"));
@@ -88,7 +100,7 @@ namespace PnPConvention.Tests
     [Fact]
     public async Task ComponentSetMethodHandler()
     {
-      await facade.SetComponentCommandHandlerAsync("c1", "cmd", (MethodRequest req, object ctx) =>
+      await pnpClient.SetComponentCommandHandlerAsync("c1", "cmd", (MethodRequest req, object ctx) =>
       {
         return Task.FromResult(new MethodResponse(0));
       }, this);
@@ -99,7 +111,7 @@ namespace PnPConvention.Tests
     [Fact]
     public async Task NoComponentSetMethodHandler()
     {
-      await facade.SetCommandHandlerAsync("cmd", (MethodRequest req, object ctx) =>
+      await pnpClient.SetCommandHandlerAsync("cmd", (MethodRequest req, object ctx) =>
       {
         return Task.FromResult(new MethodResponse(0));
       }, this);
@@ -110,7 +122,7 @@ namespace PnPConvention.Tests
     public async Task ComponentSetDesiredPropertyHandler()
     {
       string valueReaded = string.Empty;
-      facade.SetDesiredPropertyUpdateCommandHandler("c1", (TwinCollection newValue) =>
+      pnpClient.SetDesiredPropertyUpdateCommandHandler("c1", (TwinCollection newValue) =>
       {
         valueReaded = newValue.ToJson();
       });
