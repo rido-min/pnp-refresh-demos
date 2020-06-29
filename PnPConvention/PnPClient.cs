@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 namespace PnPConvention
 {
   public delegate void OnDesiredPropertyFoundCallback(TwinCollection newValue);
-  public sealed class PnPFacade
+  public sealed class PnPClient
   {
     static readonly Dictionary<string, OnDesiredPropertyFoundCallback> components = new Dictionary<string, OnDesiredPropertyFoundCallback>();
 
-    static PnPFacade() { }
-    private PnPFacade() { }
-    private static readonly PnPFacade instance = new PnPFacade();
+    static PnPClient() { }
+    private PnPClient() { }
+    private static readonly PnPClient instance = new PnPClient();
     private static IPnPDeviceClient deviceClient;
-    internal static PnPFacade CreateFromDeviceClient(IPnPDeviceClient client)
+    internal static PnPClient CreateFromDeviceClient(IPnPDeviceClient client)
     {
       deviceClient = client;
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);
       return instance;
     }
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public static PnPFacade CreateFromConnectionStringAndModelId(string connectionString, string modelId)
+    public static PnPClient CreateFromConnectionStringAndModelId(string connectionString, string modelId)
     {
       deviceClient = new PnPDeviceClient(DeviceClient.CreateFromConnectionString(connectionString,
                                                   TransportType.Mqtt,

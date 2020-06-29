@@ -8,14 +8,14 @@ using Xunit;
 
 namespace PnPConvention.Tests
 {
-  public class PnPFacadeTest : IDisposable
+  public class PnPFClientTest : IDisposable
   {
     MockDeviceClient mockClient;
-    PnPFacade facade;
-    public PnPFacadeTest()
+    PnPClient facade;
+    public PnPFClientTest()
     {
       mockClient = new MockDeviceClient();
-      facade = PnPFacade.CreateFromDeviceClient(mockClient);
+      facade = PnPClient.CreateFromDeviceClient(mockClient);
     }
 
     public void Dispose()

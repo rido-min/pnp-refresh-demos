@@ -34,27 +34,27 @@ namespace TemperatureController
     readonly Dictionary<DateTimeOffset, double> temperatureSeries1 = new Dictionary<DateTimeOffset, double>();
     readonly Dictionary<DateTimeOffset, double> temperatureSeries2 = new Dictionary<DateTimeOffset, double>();
 
-    PnPFacade facade;
+    PnPClient pnpClient;
 
     public async Task RunAsync(string connectionString, ILogger logger, CancellationToken quitSignal)
     {
       this.logger = logger;
 
-      facade = PnPFacade.CreateFromConnectionStringAndModelId(connectionString, modelId);
+      pnpClient = PnPClient.CreateFromConnectionStringAndModelId(connectionString, modelId);
 
-      await facade.ReportPropertyAsync("serialNumber", serialNumber);
-      await facade.SetCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
+      await pnpClient.ReportPropertyAsync("serialNumber", serialNumber);
+      await pnpClient.SetCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
 
-      await facade.ReportComponentPropertyCollectionAsync("deviceInfo", DeviceInfo.ThisDeviceInfo.ToDictionary());
+      await pnpClient.ReportComponentPropertyCollectionAsync("deviceInfo", DeviceInfo.ThisDeviceInfo.ToDictionary());
 
-      facade.SetDesiredPropertyUpdateCommandHandler("thermostat1", thermostat1_OnDesiredPropertiesReceived);
-      await facade.SetComponentCommandHandlerAsync("thermostat1", "getMaxMinReport", thermostat1_GetMinMaxReportCommandHadler, this);
-      var targetTemp1 = await facade.ReadDesiredComponentPropertyAsync<double>("thermostat1", "targetTemperature");
+      pnpClient.SetDesiredPropertyUpdateCommandHandler("thermostat1", thermostat1_OnDesiredPropertiesReceived);
+      await pnpClient.SetComponentCommandHandlerAsync("thermostat1", "getMaxMinReport", thermostat1_GetMinMaxReportCommandHadler, this);
+      var targetTemp1 = await pnpClient.ReadDesiredComponentPropertyAsync<double>("thermostat1", "targetTemperature");
       CurrentTemperature1 = targetTemp1;
 
-      facade.SetDesiredPropertyUpdateCommandHandler("thermostat2", thermostat2_OnDesiredPropertiesReceived);
-      await facade.SetComponentCommandHandlerAsync("thermostat2", "getMaxMinReport", thermostat2_GetMinMaxReportCommandHadler, this);
-      var targetTemp2 = await facade.ReadDesiredComponentPropertyAsync<double>("thermostat2", "targetTemperature");
+      pnpClient.SetDesiredPropertyUpdateCommandHandler("thermostat2", thermostat2_OnDesiredPropertiesReceived);
+      await pnpClient.SetComponentCommandHandlerAsync("thermostat2", "getMaxMinReport", thermostat2_GetMinMaxReportCommandHadler, this);
+      var targetTemp2 = await pnpClient.ReadDesiredComponentPropertyAsync<double>("thermostat2", "targetTemperature");
       CurrentTemperature2 = targetTemp2;
 
       await Task.Run(async () =>
@@ -65,13 +65,13 @@ namespace TemperatureController
           temperatureSeries1.Add(DateTime.Now, CurrentTemperature1);
           temperatureSeries2.Add(DateTime.Now, CurrentTemperature2);
 
-          await facade.SendTelemetryValueAsync(
+          await pnpClient.SendTelemetryValueAsync(
               JsonConvert.SerializeObject(new { workingSet = Environment.WorkingSet }));
 
-          await facade.SendComponentTelemetryValueAsync("thermostat1",
+          await pnpClient.SendComponentTelemetryValueAsync("thermostat1",
               JsonConvert.SerializeObject(new { temperature = CurrentTemperature1 }));
 
-          await facade.SendComponentTelemetryValueAsync("thermostat2",
+          await pnpClient.SendComponentTelemetryValueAsync("thermostat2",
               JsonConvert.SerializeObject(new { temperature = CurrentTemperature2 }));
 
           logger.LogInformation($"Telemetry sent. t1 {CurrentTemperature1}, t2 {CurrentTemperature2}, ws:{Environment.WorkingSet}");
@@ -133,9 +133,9 @@ namespace TemperatureController
       logger.LogWarning($"TargetTempUpdated on thermostat1: " + targetTemp);
       Task.Run(async () =>
       {
-        await facade.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
+        await pnpClient.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
         await this.ProcessTempUpdateAsync("thermostat1", targetTemp);
-        await facade.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
+        await pnpClient.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
       });
     }
 
@@ -145,9 +145,9 @@ namespace TemperatureController
       logger.LogWarning($"TargetTempUpdated on thermostat2: " + targetTemp);
       Task.Run(async () =>
       {
-        await facade.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
+        await pnpClient.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
         await this.ProcessTempUpdateAsync("thermostat2", targetTemp);
-        await facade.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
+        await pnpClient.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
       });
     }
 
