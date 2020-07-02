@@ -43,14 +43,14 @@ namespace PnPConvention.Tests
     }
 
     [Fact]
-    public async Task ComponentReadDesiredProperties_ReturnsDefaultValue_If_FlagNotFound()
+    public async Task ComponentReadDesiredProperties_ReturnsValue_If_FlagNotFound()
     {
       TwinProperties desiredProps = new TwinProperties();
       desiredProps.Desired = new TwinCollection(@"{c1: { prop1: { value: 'val1'}}}");
       Twin desired = new Twin(desiredProps);
       mockClient.DesiredProperties = desired;
       var result = await pnpClient.ReadDesiredComponentPropertyAsync<string>("c1", "prop1");
-      Assert.True(string.IsNullOrEmpty(result));
+      Assert.Equal("val1", result);
     }
 
 

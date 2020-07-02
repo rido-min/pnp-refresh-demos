@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@azure/event-hubs": "^5.2.1",
-    "azure-iot-digitaltwins-service": "^1.0.0-preview.1",
+    "azure-iot-digitaltwins-service": "^1.0.0-pnp-refresh.0",
     "azure-iothub": "^1.12.3",
     "body-parser": "^1.19.0",
     "buffer": "^5.5.0",

@@ -126,25 +126,24 @@ namespace TemperatureController
       return await Task.FromResult(new MethodResponse(constPayload, 200));
     }
 
-
     private void thermostat1_OnDesiredPropertiesReceived(TwinCollection desired)
     {
-      var targetTemp = desired.GetPropertyValue<double>("thermostat1", "targetTemperature");
-      logger.LogWarning($"TargetTempUpdated on thermostat1: " + targetTemp);
       Task.Run(async () =>
       {
+        var targetTemp = desired.GetPropertyValue<double>("thermostat1", "targetTemperature");
         await pnpClient.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
         await this.ProcessTempUpdateAsync("thermostat1", targetTemp);
+        logger.LogWarning($"TargetTempUpdated on thermostat1: " + targetTemp);
         await pnpClient.AckDesiredPropertyReadAsync("thermostat1", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);
       });
     }
 
     private void thermostat2_OnDesiredPropertiesReceived(TwinCollection desired)
     {
-      var targetTemp = desired.GetPropertyValue<double>("thermostat2", "targetTemperature");
-      logger.LogWarning($"TargetTempUpdated on thermostat2: " + targetTemp);
       Task.Run(async () =>
       {
+        var targetTemp = desired.GetPropertyValue<double>("thermostat2", "targetTemperature");
+        logger.LogWarning($"TargetTempUpdated on thermostat2: " + targetTemp);
         await pnpClient.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Pending, "update in progress", desired.Version);
         await this.ProcessTempUpdateAsync("thermostat2", targetTemp);
         await pnpClient.AckDesiredPropertyReadAsync("thermostat2", "targetTemperature", targetTemp, StatusCodes.Completed, "update Complete", desired.Version);

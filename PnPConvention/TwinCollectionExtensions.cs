@@ -22,15 +22,7 @@ namespace PnPConvention
 
     public static JObject GetOrCreateComponent(this TwinCollection collection, string componentName)
     {
-      if (collection.Contains(componentName))
-      {
-        var component = collection[componentName] as JObject;
-        if (!CheckComponentFlag(component, componentName))
-        {
-          return null;
-        }
-      }
-      else
+      if (!collection.Contains(componentName))
       {
         JToken flag = JToken.Parse("{\"__t\" : \"c\"}");
         collection[componentName] = flag;
@@ -55,10 +47,6 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var componentJson = collection[componentName] as JObject;
-        if (!CheckComponentFlag(componentJson, componentName))
-        {
-          return default(T);
-        }
         if (componentJson.ContainsKey(propertyName))
         {
           var propertyJson = componentJson[propertyName] as JObject;

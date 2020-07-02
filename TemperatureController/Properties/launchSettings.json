@@ -8,9 +8,9 @@
       "commandName": "Project",
       "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d5;SharedAccessKey=UCCEDdxv0W7XeQPBwz6Eqtww75xgVmPLRAL0ysAXL6U=\""
     },
-    "pnp-smr-priv": {
+    "pnp-smr-cnr": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=summerrelease-test-03.private.azure-devices-int.net;DeviceId=rido-tempController;SharedAccessKey=GIIP/kKxmDtTBdD8RqMbNISEU/Dtce9nQKl9QoF4qXA=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=d2;SharedAccessKey=CXGbydy2FRpaMo9m/P2WldvWY+Qb8HKC91u1895afeE=\""
     }
   }
 }
