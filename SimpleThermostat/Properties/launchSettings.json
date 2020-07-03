@@ -6,7 +6,7 @@
     },
     "SummerRefresh": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=summerrelease-test-03.private.azure-devices-int.net;DeviceId=rido-pnp-01;SharedAccessKey=rROTTxDEv9mitT1tQ0oe/vOVd03MBsKfzoVBpPKYJw8=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=simple01;SharedAccessKey=oNSa10XJzB2ronyts5hZHavUueRb+zEEYubbteJBSz8=\""
     }
   }
 }

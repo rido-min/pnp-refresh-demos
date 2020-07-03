@@ -6,13 +6,14 @@ const registry = hub.Registry.fromConnectionString(hubCs)
 // const query = registry.createQuery("select * from devices where deviceId = 'd2'", 50)
 
 ;(async () => {
-  const twin = await (await registry.getTwin('d2')).responseBody
+  const twin = (await registry.getTwin('tc-cs-01')).responseBody
   // console.log(twin)
   const patch = {
     properties: {
-      reported: {
-        deviceInfo: {
-          manufacturer: null
+      desired: {
+        thermostat1: {
+          __t: 'c',
+          targetTemperature: 32.1
         }
       }
     }

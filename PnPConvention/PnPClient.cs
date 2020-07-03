@@ -93,7 +93,10 @@ namespace PnPConvention
     {
       var twin = await deviceClient.GetTwinAsync();
       var desiredPropertyValue = twin.Properties.Desired.GetPropertyValue<T>(componentName, propertyName);
-      await AckDesiredPropertyReadAsync(componentName, propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
+      if (Comparer<T>.Default.Compare(desiredPropertyValue, default(T))>0)
+      {
+        await AckDesiredPropertyReadAsync(componentName, propertyName, desiredPropertyValue, StatusCodes.Completed, "update complete", twin.Properties.Desired.Version);
+      }
       return desiredPropertyValue;
     }
 

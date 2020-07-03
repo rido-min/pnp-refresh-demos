@@ -4,13 +4,13 @@
       "commandName": "Project",
       "commandLineArgs": "/DeviceConnectionString=\"ScopeId=0ne000DE9FB;X509=042f63c2ed1c9f7974bca94ef451fc0e930584e7\""
     },
-    "pnpdemo-D1": {
+    "cnr-D3": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=d5;SharedAccessKey=UCCEDdxv0W7XeQPBwz6Eqtww75xgVmPLRAL0ysAXL6U=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=d3;SharedAccessKey=4hkqmzkt1AoFfYfhVuDsp9LabsS2I7cB3f6oi5y3xqs=\""
     },
     "pnp-smr-cnr": {
       "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=d2;SharedAccessKey=CXGbydy2FRpaMo9m/P2WldvWY+Qb8HKC91u1895afeE=\""
+      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=tempctrler;SharedAccessKey=ejBhEuPtiijYik8SGHl0oMptFnzLIyypHzf5BQrvB9A=\""
     }
   }
 }

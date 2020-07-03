@@ -1,4 +1,5 @@
 ﻿using DeviceRunner;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Thermostat
 {
+
   public class tempReport
   {
     public double maxTemp { get; set; }
@@ -43,6 +45,10 @@ namespace Thermostat
 
       var twin = await deviceClient.GetTwinAsync();
       double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
+      if (targetTemperature>0)
+      {
+        await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature, 200, "property synced", twin.Properties.Desired.Version);
+      }
 
       await this.ProcessTempUpdateAsync(targetTemperature);
 
@@ -105,6 +111,10 @@ namespace Thermostat
     {
       this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
       double desiredPropertyValue = GetPropertyValue<double>(desiredProperties, "targetTemperature");
+      if (desiredPropertyValue>0)
+      {
+        await AckDesiredPropertyReadAsync("targetTemperature", desiredPropertyValue, 200, "property synced", desiredProperties.Version);
+      }
       await this.ProcessTempUpdateAsync(desiredPropertyValue);
     }
 
@@ -128,6 +138,25 @@ namespace Thermostat
         }
       }
       return result;
+    }
+
+
+    public async Task AckDesiredPropertyReadAsync(string propertyName, object payload, int statuscode, string description, long version)
+    {
+      var ack = CreateAck(propertyName, payload, statuscode, version, description);
+      await deviceClient.UpdateReportedPropertiesAsync(ack);
+    }
+
+    private TwinCollection CreateAck(string propertyName, object value, int statusCode, long statusVersion, string statusDescription = "")
+    {
+      TwinCollection ack = new TwinCollection();
+      var ackProps = new TwinCollection();
+      ackProps["value"] = value;
+      ackProps["ac"] = statusCode;
+      ackProps["av"] = statusVersion;
+      if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
+      ack[propertyName] = ackProps;
+      return ack;
     }
   }
 }
