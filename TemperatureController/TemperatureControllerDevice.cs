@@ -96,34 +96,53 @@ namespace TemperatureController
 
     private async Task<MethodResponse> thermostat1_GetMinMaxReportCommandHadler(MethodRequest req, object ctx)
     {
-      var since = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value").Value<DateTime>();
-      var series = temperatureSeries1.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
-      var report = new tempReport()
+      var payload = JsonConvert.DeserializeObject(req.DataAsJson);
+      if (payload is DateTime)
       {
-        maxTemp = series.Values.Max<double>(),
-        minTemp = series.Values.Min<double>(),
-        avgTemp = series.Values.Average(),
-        startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-        endTime = series.Keys.Max<DateTimeOffset>().DateTime
-      };
-      var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
-      return await Task.FromResult(new MethodResponse(constPayload, 200));
+        DateTime since = (DateTime)payload;
+        var series = temperatureSeries1.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
+        var report = new tempReport()
+        {
+          maxTemp = series.Values.Max<double>(),
+          minTemp = series.Values.Min<double>(),
+          avgTemp = series.Values.Average(),
+          startTime = series.Keys.Min<DateTimeOffset>().DateTime,
+          endTime = series.Keys.Max<DateTimeOffset>().DateTime
+        };
+        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
+        return await Task.FromResult(new MethodResponse(constPayload, 200));
+      }
+      else
+      {
+        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
+        return await Task.FromResult(new MethodResponse(constPayload, 500));
+      }
+
     }
 
     private async Task<MethodResponse> thermostat2_GetMinMaxReportCommandHadler(MethodRequest req, object ctx)
     {
-      var since = JObject.Parse(req.DataAsJson).SelectToken("commandRequest.value").Value<DateTime>();
-      var series = temperatureSeries2.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
-      var report = new tempReport()
+      var payload = JsonConvert.DeserializeObject(req.DataAsJson);
+      if (payload is DateTime)
       {
-        maxTemp = series.Values.Max<double>(),
-        minTemp = series.Values.Min<double>(),
-        avgTemp = series.Values.Average(),
-        startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-        endTime = series.Keys.Max<DateTimeOffset>().DateTime
-      };
-      var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
-      return await Task.FromResult(new MethodResponse(constPayload, 200));
+        DateTime since = (DateTime)payload;
+        var series = temperatureSeries2.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
+        var report = new tempReport()
+        {
+          maxTemp = series.Values.Max<double>(),
+          minTemp = series.Values.Min<double>(),
+          avgTemp = series.Values.Average(),
+          startTime = series.Keys.Min<DateTimeOffset>().DateTime,
+          endTime = series.Keys.Max<DateTimeOffset>().DateTime
+        };
+        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
+        return await Task.FromResult(new MethodResponse(constPayload, 200));
+      }
+      else
+      {
+        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
+        return await Task.FromResult(new MethodResponse(constPayload, 500));
+      }
     }
 
     private void thermostat1_OnDesiredPropertiesReceived(TwinCollection desired)

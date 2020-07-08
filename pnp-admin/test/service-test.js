@@ -1,20 +1,17 @@
 const hub = require('azure-iothub')
 // const dtService = require('azure-iot-digitaltwins-service')
-const hubCs = 'HostName=rido-smr-01.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=7eHWv8XFTjnYOmoUykG02/9Oup0X6mjGUuvQqYmh0kA='
+const hubCs = 'HostName=SwickSummerHub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=vRPQThaXTa1AjyhKiTkE2DU0e4md27ZkhsnvHjWP0+w='
 const registry = hub.Registry.fromConnectionString(hubCs)
 
 // const query = registry.createQuery("select * from devices where deviceId = 'd2'", 50)
 
 ;(async () => {
-  const twin = (await registry.getTwin('tc-cs-01')).responseBody
+  const twin = (await registry.getTwin('repdestest')).responseBody
   // console.log(twin)
   const patch = {
     properties: {
       desired: {
-        thermostat1: {
-          __t: 'c',
-          targetTemperature: 32.1
-        }
+        CustomerName: 'Mahou'
       }
     }
   }

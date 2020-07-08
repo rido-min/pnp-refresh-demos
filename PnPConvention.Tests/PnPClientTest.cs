@@ -1,5 +1,7 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -132,6 +134,17 @@ namespace PnPConvention.Tests
       Assert.Equal("{\"c1\":{\"prop1\":\"val1\"}}", valueReaded);
     }
 
-  
+    [Fact]
+    public void ParseCommandRequest()
+    {
+      string payload = "\"2011-11-11T11:11:11\"";
+
+      //var jo = JObject.Parse(payload);
+      //var res = jo.Value<DateTime>();
+
+      var jo = JsonConvert.DeserializeObject(payload);
+      Assert.Equal(new DateTime(2011, 11, 11, 11, 11, 11), jo);
+
+    }
   }
 }
