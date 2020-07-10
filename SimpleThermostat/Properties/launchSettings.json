@@ -7,6 +7,12 @@
     "SummerRefresh": {
       "commandName": "Project",
       "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=simple01;SharedAccessKey=oNSa10XJzB2ronyts5hZHavUueRb+zEEYubbteJBSz8=\""
+    },
+    "dps_pnp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-02;SharedAccessKey=7zV6eZjNawT6iZN72m5ASkVvLaGENkAQg3r4srZ8GbQ="
+      }
     }
   }
 }

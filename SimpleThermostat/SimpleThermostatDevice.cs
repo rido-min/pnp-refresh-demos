@@ -5,6 +5,7 @@ using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rido;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +38,10 @@ namespace Thermostat
     {
       this.logger = logger;
 
-      deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
-        TransportType.Mqtt, new ClientOptions { ModelId = modelId });
+      //deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
+      //  TransportType.Mqtt, new ClientOptions { ModelId = modelId });
+
+      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
       await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.26.0-pnp-summer-refresh" />
+    <PackageReference Include="Rido.DeviceClientFactory" Version="0.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DeviceRunner\DeviceRunner.csproj" />
