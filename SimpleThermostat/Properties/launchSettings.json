@@ -11,7 +11,7 @@
     "dps_pnp": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-02;SharedAccessKey=7zV6eZjNawT6iZN72m5ASkVvLaGENkAQg3r4srZ8GbQ="
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-04;SharedAccessKey=xKo0QK24bYj26PiD0taAuPlhy9+7ypMF9WDk7+K0YEc="
       }
     }
   }

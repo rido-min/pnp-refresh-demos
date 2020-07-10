@@ -11,5 +11,10 @@
   <ItemGroup>
     <ProjectReference Include="..\DeviceRunner\DeviceRunner.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

@@ -148,7 +148,14 @@ namespace Thermostat
         }
         else
         {
-          result = collection[propertyName].Value;
+          try
+          {
+            result = collection[propertyName].Value;
+          }
+          catch (Exception ex)
+          {
+            this.logger.LogError(ex, ex.Message);
+          }
         }
       }
       return result;
