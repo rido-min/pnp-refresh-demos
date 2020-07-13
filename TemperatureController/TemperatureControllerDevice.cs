@@ -42,12 +42,14 @@ namespace TemperatureController
       this.quitSignal = quitSignal;
       this.logger = logger;
 
-      pnpClient = await PnPClient.CreateFromDPSSasAndModelIdAsync(
-        "0ne000DE9FB",
-        "dn-st-05",
-        "sIvKXk0xXOA5w2iFuaMRlqT0ymcD7WTyN2E1IL9wWzc=",
-        modelId,
-        logger);
+      //pnpClient = await PnPClient.CreateFromDPSSasAndModelIdAsync(
+      //  "0ne000DE9FB",
+      //  "dn-st-05",
+      //  "sIvKXk0xXOA5w2iFuaMRlqT0ymcD7WTyN2E1IL9wWzc=",
+      //  modelId,
+      //  logger);
+
+      pnpClient = PnPClient.CreateFromConnectionStringAndModelId(connectionString, modelId);
 
       await pnpClient.SetCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
 

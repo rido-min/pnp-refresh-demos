@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rido;
+using SimpleThermostat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,19 +42,18 @@ namespace Thermostat
       //deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
       //  TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
+      //deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
+
+      deviceClient = await Dps.ProvisionDeviceWithSasKeyAsync("0ne00139030", "st01", "2+hY0eGMWCAWKtr2LK6EqR/HGebtcYsh3FXwdUXQcV8=", "urn:summerrefresh:SimpleThermostat_4zq:1", logger);
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
       await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);
 
       var twin = await deviceClient.GetTwinAsync();
-      double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
-      if (targetTemperature>0)
-      {
-        await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature, 200, "property synced", twin.Properties.Desired.Version);
-      }
-
-      await this.ProcessTempUpdateAsync(targetTemperature);
+      var targetTemperature = GetPropertyValue<double?>(twin.Properties.Desired, "targetTemperature");
+        
+      await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature.GetValueOrDefault(), 200, "property synced", twin.Properties.Desired.Version);
+      await this.ProcessTempUpdateAsync(targetTemperature.GetValueOrDefault());
 
       await Task.Run(async () =>
       {
@@ -96,6 +96,8 @@ namespace Thermostat
 
     private async Task<MethodResponse> root_getMaxMinReportCommandHadler(MethodRequest req, object ctx)
     {
+      logger.LogWarning("============> Command Request <===================");
+      logger.LogWarning(req.Name + req.DataAsJson);
       var payload = JsonConvert.DeserializeObject(req.DataAsJson);
       if (payload is DateTime)
       {
@@ -124,12 +126,11 @@ namespace Thermostat
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
       this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
-      double desiredPropertyValue = GetPropertyValue<double>(desiredProperties, "targetTemperature");
-      if (desiredPropertyValue>0)
-      {
-        await AckDesiredPropertyReadAsync("targetTemperature", desiredPropertyValue, 200, "property synced", desiredProperties.Version);
-      }
-      await this.ProcessTempUpdateAsync(desiredPropertyValue);
+      var desiredPropertyValue = GetPropertyValue<double?>(desiredProperties, "targetTemperature");
+      
+      await AckDesiredPropertyReadAsync("targetTemperature", desiredPropertyValue.GetValueOrDefault(), 200, "property synced", desiredProperties.Version);
+      
+      await this.ProcessTempUpdateAsync(desiredPropertyValue.GetValueOrDefault());
     }
 
     T GetPropertyValue<T>(TwinCollection collection, string propertyName)
