@@ -1,6 +1,6 @@
 ﻿{
 	"Orchestrator": {
-		"Action": "start",
+		"Action": 1,
 		"TargetVersion": 123,
 		"Files": {
 			"asdfasdfads": "https://url.com",
