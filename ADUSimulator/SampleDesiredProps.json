@@ -1,0 +1,12 @@
+﻿{
+	"Orchestrator": {
+		"Action": "start",
+		"TargetVersion": 123,
+		"Files": {
+			"asdfasdfads": "https://url.com",
+			"asdfasdfa": "https://url.com"
+		},
+		"ExpectedContentId": "a",
+		"InstalledCriteria": "b"
+	}
+}
