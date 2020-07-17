@@ -48,7 +48,8 @@ namespace ADUSimulator
     {
       this.logger = logger;
 
-      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
+      deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt, 
+        new ClientOptions { ModelId = modelId });
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
 
