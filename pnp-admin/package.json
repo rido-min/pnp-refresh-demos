@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/event-hubs": "^5.2.1",
-    "azure-iot-digitaltwins-service": "^1.0.0-pnp-refresh.0",
-    "azure-iothub": "^1.12.3",
+    "@azure/event-hubs": "^5.2.2",
+    "azure-iot-digitaltwins-service": "^1.0.0-pnp-refresh.3",
+    "azure-iothub": "^1.12.4",
     "body-parser": "^1.19.0",
     "buffer": "^5.5.0",
     "crypto": "^1.0.1",
@@ -25,13 +25,13 @@
     "live-plugin-manager": "^0.14.1",
     "moment": "^2.27.0",
     "replace-string": "^3.1.0",
-    "ws": ">=7.1.2"
+    "ws": "^7.3.1"
   },
   "devDependencies": {
-    "@types/chart.js": "^2.9.22",
-    "@types/node": "^14.0.13",
+    "@types/chart.js": "^2.9.23",
+    "@types/node": "^14.0.24",
     "@types/vue": "^2.0.0",
-    "@types/ws": "^7.2.5",
+    "@types/ws": "^7.2.6",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.3",
     "standard": "^14.3.3"
