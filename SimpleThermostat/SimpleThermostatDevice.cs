@@ -21,8 +21,7 @@ namespace Thermostat
     public double maxTemp { get; set; }
     public double minTemp { get; set; }
     public double avgTemp { get; set; }
-    public DateTime startTime { get; set; }
-    public DateTime endTime { get; set; }
+    public DateTime since { get; set; }
   }
 
   class SimpleThermostatDevice : IRunnableWithConnectionString
@@ -40,22 +39,20 @@ namespace Thermostat
 
       //deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
       //  TransportType.Mqtt, new ClientOptions { ModelId = modelId });
-
-      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString , logger, modelId);
+      temperatureSeries.Add(DateTime.Now, CurrentTemperature);
+      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString, logger, modelId);
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
       await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);
 
       var twin = await deviceClient.GetTwinAsync();
       double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
-      if (targetTemperature>0)
+      if (targetTemperature > 0)
       {
         await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature, 200, "property synced", twin.Properties.Desired.Version);
       }
 
-      TwinCollection reportedProperties = new TwinCollection();
-      reportedProperties["maxTempSinceLastReboot"] = 38.7;
-      await deviceClient.UpdateReportedPropertiesAsync(reportedProperties);
+     
 
       await this.ProcessTempUpdateAsync(targetTemperature);
 
@@ -100,43 +97,42 @@ namespace Thermostat
 
     private async Task<MethodResponse> root_getMaxMinReportCommandHadler(MethodRequest req, object ctx)
     {
+      logger.LogWarning(req.Name);
+      logger.LogWarning(req.DataAsJson);
+      TwinCollection reportedProperties = new TwinCollection();
+      reportedProperties["maxTempSinceLastReboot"] = 38.7;
+      await deviceClient.UpdateReportedPropertiesAsync(reportedProperties);
 
       DateTime since;
       var payload = JsonConvert.DeserializeObject(req.DataAsJson);
       if (payload is DateTime)
       {
         since = (DateTime)payload;
-      }
-      else
-      {
-        since = DateTime.Now;
-      }
-
 
         var series = temperatureSeries.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
+
         var report = new tempReport()
         {
           maxTemp = series.Values.Max<double>(),
           minTemp = series.Values.Min<double>(),
           avgTemp = series.Values.Average(),
-          startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-          endTime = series.Keys.Max<DateTimeOffset>().DateTime
+          since = series.Keys.Max<DateTimeOffset>().DateTime
         };
         var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
         return await Task.FromResult(new MethodResponse(constPayload, 200));
-      //}
-      //else
-      //{
-      //  var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
-      //  return await Task.FromResult(new MethodResponse(constPayload, 500));
-      //}
+      }
+      else
+      {
+        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
+        return await Task.FromResult(new MethodResponse(constPayload, 500));
+      }
     }
 
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
       this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
       double desiredPropertyValue = GetPropertyValue<double>(desiredProperties, "targetTemperature");
-      if (desiredPropertyValue>0)
+      if (desiredPropertyValue > 0)
       {
         await AckDesiredPropertyReadAsync("targetTemperature", desiredPropertyValue, 200, "property synced", desiredProperties.Version);
       }

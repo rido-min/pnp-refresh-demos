@@ -9,7 +9,13 @@
     "AICS": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=9adfe617-f743-411d-b23a-442946e0b217;SharedAccessKey=EOyFG4Qh+1r8L0zyK2yrMZ6rG1L9sCSVQbyQ4hjR5Bc="
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=6a5935c6-6e88-45d4-865e-deafadfe2b05;SharedAccessKey=A1CMqGAdRbRcqhxxiGgvLOwiy+f0yLhVh53IxqNTyjA="
+      }
+    },
+    "CertCLI": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=8c184d00-039f-45f9-a195-c4a82ae06848;SharedAccessKey=4cqgRsU8K3QP/DPqEPm+ecopya5MckbBCQfMi9D9W6k="
       }
     }
   }
