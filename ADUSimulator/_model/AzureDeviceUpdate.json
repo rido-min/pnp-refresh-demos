@@ -11,22 +11,22 @@
       "schema": {
         "@type": "Object",
         "fields": [
-            {
-                "name": "ResultCode",
-                "schema": "integer"
-            },
-            {
-                "name": "ExtendedResultCode",
-                "schema": "integer"
-            },
-            {
-                "name": "State",
-                "schema": "integer"
-            },
-            {
-              "name": "InstalledContentId",
-              "schema": "string"
-          }            
+          {
+            "name": "ResultCode",
+            "schema": "integer"
+          },
+          {
+            "name": "ExtendedResultCode",
+            "schema": "integer"
+          },
+          {
+            "name": "State",
+            "schema": "integer"
+          },
+          {
+            "name": "InstalledContentId",
+            "schema": "string"
+          }
         ]
       }
     },
@@ -37,26 +37,26 @@
         "@type": "Object",
         "fields": [
           {
-              "name": "Action",
-              "schema": "integer"
+            "name": "Action",
+            "schema": "integer"
           },
           {
-              "name": "TargetVersion",
-              "schema": "integer"
+            "name": "TargetVersion",
+            "schema": "integer"
           },
           {
-              "name": "Files",
-              "schema": {
-                "@type": "Map",
-                "mapKey": {
-                  "name": "FileHash",
-                  "schema": "string"
-                },
-                "mapValue": {
-                  "name": "DownloadUri",
-                  "schema": "string"
-                }
+            "name": "Files",
+            "schema": {
+              "@type": "Map",
+              "mapKey": {
+                "name": "FileHash",
+                "schema": "string"
+              },
+              "mapValue": {
+                "name": "DownloadUri",
+                "schema": "string"
               }
+            }
           },
           {
             "name": "ExpectedContentId",
@@ -65,10 +65,10 @@
           {
             "name": "InstalledCriteria",
             "schema": "string"
-          }          
+          }
         ]
       },
       "writable": true
-    }  
+    }
   ]
 }
