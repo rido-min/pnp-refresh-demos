@@ -1,17 +1,15 @@
 {
   "profiles": {
-    "PPR": {
-      "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-pnp-ppr.azure-devices.net;DeviceId=simple-01;SharedAccessKey=p4WCJcwJLlicdzi7gKLZiub3C+2LES430kA/VJabSIM=\""
-    },
-    "SummerRefresh": {
-      "commandName": "Project",
-      "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=simple01;SharedAccessKey=oNSa10XJzB2ronyts5hZHavUueRb+zEEYubbteJBSz8=\""
-    },
     "dps_pnp": {
       "commandName": "Project",
       "environmentVariables": {
         "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-04;SharedAccessKey=xKo0QK24bYj26PiD0taAuPlhy9+7ypMF9WDk7+K0YEc="
+      }
+    },
+    "AICS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=9adfe617-f743-411d-b23a-442946e0b217;SharedAccessKey=EOyFG4Qh+1r8L0zyK2yrMZ6rG1L9sCSVQbyQ4hjR5Bc="
       }
     }
   }

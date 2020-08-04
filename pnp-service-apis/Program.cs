@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Devices;
+using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using System;
 using System.Security.Cryptography;
@@ -10,12 +11,53 @@ namespace pnp_service_apis
   {
     static async Task Main(string[] args)
     {
-      var cs = "HostName=summerrelease-test-03.private.azure-devices-int.net;SharedAccessKeyName=iothubowner;SharedAccessKey=7NOwXejCnfJKrlFJ8GcWXlTw51W1jDq+SBuQExEnh9c=";
-
+      var cs = "HostName=ridohub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=EcSKltC/G6tc8jYaWWDvQh2wdCWMr5XLFRSBvwg0YdA=";
+      var deviceId = "adu-sim-01";
       var registry = RegistryManager.CreateFromConnectionString(cs);
-      var device = await registry.GetDeviceAsync("rido-pnp-01");
+
+      var twin = await registry.GetTwinAsync(deviceId);
+      Console.WriteLine(twin.ModelId);
+
+      //var patch =
+      //          @"{
+      //              properties: {
+      //                desired: {
+      //                  Orchestrator: {
+      //                    Action: 332,
+      //                TargetVersion: 332,
+      //                Files: {
+      //                      aaaa: 'https://aka.ms.332',
+      //                 sdfa: 332
+      //                    },
+      //              ExpectedContentId: '332',
+      //              InstalledCriteria: '332'
+      //                }
+      //              }
+      //          }";
+
+      var patch =
+              @"{
+                    properties: {
+                      desired: {
+                        Orchestrator: {
+                          Action: 44,
+				                  TargetVersion: 332,
+				                  Files: null
+                        },
+				                InstalledCriteria: '332'
+                      }
+                    }
+                }";
 
 
+
+      var t2 = await registry.UpdateTwinAsync(deviceId, patch, twin.ETag);
+      Console.WriteLine(t2.ToJson());
+
+      var device = await registry.GetDeviceAsync(deviceId);
+      
+      
+            
       Console.WriteLine(JsonConvert.SerializeObject(device));
 
       var serviceClient = ServiceClient.CreateFromConnectionString(cs);
@@ -28,7 +70,7 @@ namespace pnp_service_apis
           }
         }
       ");
-      var resp = await serviceClient.InvokeDeviceMethodAsync("rido-pnp-01", c2dm );
+      var resp = await serviceClient.InvokeDeviceMethodAsync(deviceId, c2dm );
       Console.WriteLine(resp.Status);
       string result = resp.GetPayloadAsJson();
       Console.WriteLine(result);

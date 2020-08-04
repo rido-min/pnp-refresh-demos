@@ -41,7 +41,7 @@ namespace Thermostat
       //deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
       //  TransportType.Mqtt, new ClientOptions { ModelId = modelId });
 
-      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
+      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString , logger, modelId);
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
       await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);
@@ -52,6 +52,10 @@ namespace Thermostat
       {
         await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature, 200, "property synced", twin.Properties.Desired.Version);
       }
+
+      TwinCollection reportedProperties = new TwinCollection();
+      reportedProperties["maxTempSinceLastReboot"] = 38.7;
+      await deviceClient.UpdateReportedPropertiesAsync(reportedProperties);
 
       await this.ProcessTempUpdateAsync(targetTemperature);
 
@@ -96,10 +100,17 @@ namespace Thermostat
 
     private async Task<MethodResponse> root_getMaxMinReportCommandHadler(MethodRequest req, object ctx)
     {
+
+      DateTime since;
       var payload = JsonConvert.DeserializeObject(req.DataAsJson);
       if (payload is DateTime)
       {
-        DateTime since = (DateTime)payload;
+        since = (DateTime)payload;
+      }
+      else
+      {
+        since = DateTime.Now;
+      }
 
 
         var series = temperatureSeries.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
@@ -113,12 +124,12 @@ namespace Thermostat
         };
         var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
         return await Task.FromResult(new MethodResponse(constPayload, 200));
-      }
-      else
-      {
-        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
-        return await Task.FromResult(new MethodResponse(constPayload, 500));
-      }
+      //}
+      //else
+      //{
+      //  var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("error parsing input"));
+      //  return await Task.FromResult(new MethodResponse(constPayload, 500));
+      //}
     }
 
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
