@@ -21,7 +21,8 @@ namespace Thermostat
     public double maxTemp { get; set; }
     public double minTemp { get; set; }
     public double avgTemp { get; set; }
-    public DateTime since { get; set; }
+    public DateTime startTime { get; set; }
+    public DateTime endTime { get; set; }
   }
 
   class SimpleThermostatDevice : IRunnableWithConnectionString
@@ -110,16 +111,24 @@ namespace Thermostat
         since = (DateTime)payload;
 
         var series = temperatureSeries.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
-
-        var report = new tempReport()
+        byte[] responseBytes;
+        if (series != null && series.Any())
         {
-          maxTemp = series.Values.Max<double>(),
-          minTemp = series.Values.Min<double>(),
-          avgTemp = series.Values.Average(),
-          since = series.Keys.Max<DateTimeOffset>().DateTime
-        };
-        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
-        return await Task.FromResult(new MethodResponse(constPayload, 200));
+          var report = new tempReport()
+          {
+            maxTemp = series.Values.Max<double>(),
+            minTemp = series.Values.Min<double>(),
+            avgTemp = series.Values.Average(),
+            startTime = series.Keys.Min<DateTimeOffset>().DateTime,
+            endTime = series.Keys.Max<DateTimeOffset>().DateTime
+          };
+          responseBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
+        }
+        else
+        {
+          responseBytes = Encoding.UTF8.GetBytes("{}");
+        }
+        return await Task.FromResult(new MethodResponse(responseBytes, 200));
       }
       else
       {
