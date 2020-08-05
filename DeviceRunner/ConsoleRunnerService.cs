@@ -53,7 +53,11 @@ namespace DeviceRunner
       if (string.IsNullOrWhiteSpace(connectionString))
       {
         logger.LogError("ConnectionString not found using key: DeviceConnectionString");
-        throw new ApplicationException("Connection String 'DeviceConnectionString' not found in the configured providers.");
+        Console.WriteLine("Please provide the device connectionstring and hit [ENTER]");
+        connectionString = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(connectionString)) {
+          throw new ApplicationException("Connection String 'DeviceConnectionString' not found in the configured providers.");
+        }
       }
       return connectionString;
     }

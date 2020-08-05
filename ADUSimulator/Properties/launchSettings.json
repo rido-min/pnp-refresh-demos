@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "ridohub": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "HostName=ridohub.azure-devices.net;DeviceId=adu-sim-01;SharedAccessKey=Pcw2Kmfz9B8vTCFVzmc8SbsXlQ90Iz/XJaUK6yuJ/rY="
+      }
+    },
+    "ridohub-DPS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=adu-sim-01;SharedAccessKey=/mSFp+1Xw5C9KvhENY8eI78xVL7Sz9bMeRLTIH78pq8="
+      }
+    },
+    "AICS-DPS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=88ab4a8a-47a0-49e1-811b-edd5e7a38ed1;SharedAccessKey=8VqyEV8HsziRhzUMa83cFabeaYuRGb5Og9i6pb5lNZw="
+      }
+    }
+  }
+}

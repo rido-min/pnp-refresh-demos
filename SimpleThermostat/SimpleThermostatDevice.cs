@@ -40,18 +40,20 @@ namespace Thermostat
 
       //deviceClient = DeviceClient.CreateFromConnectionString(connectionString,
       //  TransportType.Mqtt, new ClientOptions { ModelId = modelId });
-
-      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString + ";ModelId=" + modelId);
+      temperatureSeries.Add(DateTime.Now, CurrentTemperature);
+      deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString, logger, modelId);
 
       await deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, this, quitSignal);
       await deviceClient.SetMethodHandlerAsync("getMaxMinReport", root_getMaxMinReportCommandHadler, this);
 
       var twin = await deviceClient.GetTwinAsync();
       double targetTemperature = GetPropertyValue<double>(twin.Properties.Desired, "targetTemperature");
-      if (targetTemperature>0)
+      if (targetTemperature > 0)
       {
         await AckDesiredPropertyReadAsync("targetTemperature", targetTemperature, 200, "property synced", twin.Properties.Desired.Version);
       }
+
+     
 
       await this.ProcessTempUpdateAsync(targetTemperature);
 
@@ -96,23 +98,37 @@ namespace Thermostat
 
     private async Task<MethodResponse> root_getMaxMinReportCommandHadler(MethodRequest req, object ctx)
     {
+      logger.LogWarning(req.Name);
+      logger.LogWarning(req.DataAsJson);
+      TwinCollection reportedProperties = new TwinCollection();
+      reportedProperties["maxTempSinceLastReboot"] = 38.7;
+      await deviceClient.UpdateReportedPropertiesAsync(reportedProperties);
+
+      DateTime since;
       var payload = JsonConvert.DeserializeObject(req.DataAsJson);
       if (payload is DateTime)
       {
-        DateTime since = (DateTime)payload;
-
+        since = (DateTime)payload;
 
         var series = temperatureSeries.Where(t => t.Key > since).ToDictionary(i => i.Key, i => i.Value);
-        var report = new tempReport()
+        byte[] responseBytes;
+        if (series != null && series.Any())
         {
-          maxTemp = series.Values.Max<double>(),
-          minTemp = series.Values.Min<double>(),
-          avgTemp = series.Values.Average(),
-          startTime = series.Keys.Min<DateTimeOffset>().DateTime,
-          endTime = series.Keys.Max<DateTimeOffset>().DateTime
-        };
-        var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
-        return await Task.FromResult(new MethodResponse(constPayload, 200));
+          var report = new tempReport()
+          {
+            maxTemp = series.Values.Max<double>(),
+            minTemp = series.Values.Min<double>(),
+            avgTemp = series.Values.Average(),
+            startTime = series.Keys.Min<DateTimeOffset>().DateTime,
+            endTime = series.Keys.Max<DateTimeOffset>().DateTime
+          };
+          responseBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(report));
+        }
+        else
+        {
+          responseBytes = Encoding.UTF8.GetBytes("{}");
+        }
+        return await Task.FromResult(new MethodResponse(responseBytes, 200));
       }
       else
       {
@@ -125,7 +141,7 @@ namespace Thermostat
     {
       this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
       double desiredPropertyValue = GetPropertyValue<double>(desiredProperties, "targetTemperature");
-      if (desiredPropertyValue>0)
+      if (desiredPropertyValue > 0)
       {
         await AckDesiredPropertyReadAsync("targetTemperature", desiredPropertyValue, 200, "property synced", desiredProperties.Version);
       }
@@ -170,14 +186,14 @@ namespace Thermostat
 
     private TwinCollection CreateAck(string propertyName, object value, int statusCode, long statusVersion, string statusDescription = "")
     {
-      TwinCollection ack = new TwinCollection();
-      var ackProps = new TwinCollection();
-      ackProps["value"] = value;
-      ackProps["ac"] = statusCode;
-      ackProps["av"] = statusVersion;
-      if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
-      ack[propertyName] = ackProps;
-      return ack;
+      TwinCollection ackProp = new TwinCollection();
+      ackProp[propertyName] = new {
+        value = value,
+        ac = statusCode,
+        av = statusVersion,
+        ad = statusDescription
+      };
+      return ackProp;
     }
   }
 }

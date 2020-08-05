@@ -11,8 +11,8 @@
         "Temperature"
       ],
       "name": "temperature",
-      "displayName" : "Temperature",
-      "description" : "Temperature in celsius.",
+      "displayName": "Temperature",
+      "description": "Temperature in degrees Celsius.",
       "schema": "double",
       "unit": "degreeCelsius"
     },
@@ -25,7 +25,7 @@
       "schema": "double",
       "displayName": "Target Temperature",
       "description": "Allows to remotely specify the desired target temperature.",
-      "unit" : "degreeCelsius",
+      "unit": "degreeCelsius",
       "writable": true
     },
     {
@@ -35,7 +35,7 @@
       ],
       "name": "maxTempSinceLastReboot",
       "schema": "double",
-      "unit" : "degreeCelsius",
+      "unit": "degreeCelsius",
       "displayName": "Max temperature since last reboot.",
       "description": "Returns the max temperature since last device reboot."
     },
@@ -43,7 +43,7 @@
       "@type": "Command",
       "name": "getMaxMinReport",
       "displayName": "Get Max-Min report.",
-      "description": "This command returns the max, min and average temperature in the specified period.",
+      "description": "This command returns the max, min and average temperature from the specified time to the current time.",
       "request": {
         "name": "since",
         "displayName": "Since",
@@ -51,7 +51,7 @@
         "schema": "dateTime"
       },
       "response": {
-        "name" : "tempReport",
+        "name": "tempReport",
         "displayName": "Temperature Report",
         "schema": {
           "@type": "Object",
@@ -67,13 +67,18 @@
               "schema": "double"
             },
             {
-              "name" : "avgTemp",
+              "name": "avgTemp",
               "displayName": "Average Temperature",
               "schema": "double"
             },
             {
-              "name" : "since",
-              "displayName": "Since",
+              "name": "startTime",
+              "displayName": "Start Time",
+              "schema": "dateTime"
+            },
+            {
+              "name": "endTime",
+              "displayName": "End Time",
               "schema": "dateTime"
             }
           ]
