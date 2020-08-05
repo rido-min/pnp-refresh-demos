@@ -186,14 +186,14 @@ namespace Thermostat
 
     private TwinCollection CreateAck(string propertyName, object value, int statusCode, long statusVersion, string statusDescription = "")
     {
-      TwinCollection ack = new TwinCollection();
-      var ackProps = new TwinCollection();
-      ackProps["value"] = value;
-      ackProps["ac"] = statusCode;
-      ackProps["av"] = statusVersion;
-      if (!string.IsNullOrEmpty(statusDescription)) ackProps["ad"] = statusDescription;
-      ack[propertyName] = ackProps;
-      return ack;
+      TwinCollection ackProp = new TwinCollection();
+      ackProp[propertyName] = new {
+        value = value,
+        ac = statusCode,
+        av = statusVersion,
+        ad = statusDescription
+      };
+      return ackProp;
     }
   }
 }
