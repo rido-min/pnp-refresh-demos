@@ -3,7 +3,7 @@
     "dps_pnp": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-04;SharedAccessKey=xKo0QK24bYj26PiD0taAuPlhy9+7ypMF9WDk7+K0YEc="
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=myCertDevice;SharedAccessKey=wbkBhZ9afAOs0vbYtpUDx4SeeONP0wTebno5mwkSPOs="
       }
     },
     "AICS": {
@@ -15,7 +15,7 @@
     "CertCLI": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=8c184d00-039f-45f9-a195-c4a82ae06848;SharedAccessKey=4cqgRsU8K3QP/DPqEPm+ecopya5MckbBCQfMi9D9W6k="
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=53d74370-f8e6-4c1d-9c7e-269abd13d01e;SharedAccessKey=9erU4PLrbYHNDx+jWI/uWTEQJonSza2DXjnQ+NQxnxI="
       }
     }
   }

@@ -1,0 +1,59 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:com:rido:myTestDevice;1",
+  "@type": "Interface",
+  "displayName": "Sample Device to tet Cert",
+  "schemas": [
+    {
+      "@type": "Object",
+      "@id": "dtmi:com:rido:myTestDevice:person;1",
+      "fields": [
+        {
+          "name": "personName",
+          "schema": "string"
+        },
+        {
+          "name": "isValid",
+          "schema": "boolean"
+        },
+        {
+          "name": "birthday",
+          "schema": "dateTime"
+        }
+      ]
+    }
+  ],
+  "contents": [
+    {
+      "@type": "Property",
+      "schema": "dtmi:com:rido:myTestDevice:person;1",
+      "name": "Owner"
+    },
+    {
+      "@type": "Property",
+      "schema": "dtmi:com:rido:myTestDevice:person;1",
+      "name": "Delegate",
+      "writable": true
+    },
+    {
+      "@type": "Telemetry",
+      "schema": "dtmi:com:rido:myTestDevice:person;1",
+      "name": "People"
+    },
+    {
+      "@type": "Command",
+      "name": "GetPeople",
+      "request": {
+        "name": "GetPeople_Request",
+        "schema": "dtmi:com:rido:myTestDevice:person;1"
+      },
+      "response": {
+        "name": "GetPeople_Respone",
+        "schema": {
+          "@type": "Array",
+          "elementSchema": "dtmi:com:rido:myTestDevice:person;1"
+        }
+      }
+    }
+  ]
+}
