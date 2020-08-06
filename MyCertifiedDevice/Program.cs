@@ -7,7 +7,7 @@ namespace Thermostat
   {
     public static async Task Main(string[] args)
     {
-      await ConsoleRunnerService<MyCertifiedDeviceSimulator>.RunDeviceAsync(args);
+      await ConsoleRunnerService<DatesTestDevice>.RunDeviceAsync(args);
     }
   }
 }

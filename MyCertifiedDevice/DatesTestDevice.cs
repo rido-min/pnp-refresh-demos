@@ -16,16 +16,9 @@ using System.Threading.Tasks;
 namespace Thermostat
 {
 
-  public class Person
+  class DatesTestDevice : IRunnableWithConnectionString
   {
-    public string personName { get; set; }
-    public bool  isValid { get; set; }
-    public DateTime birthday { get; set; }
-  }
-
-  class MyCertifiedDeviceSimulator : IRunnableWithConnectionString
-  {
-    const string modelId = "dtmi:com:rido:myTestDevice;1";
+    const string modelId = "dtmi:com:rido:datestest;1";
     
 
     ILogger logger;
@@ -41,36 +34,33 @@ namespace Thermostat
       await deviceClient.SetMethodDefaultHandlerAsync(root_DefaultCommandHadler, null, quitSignal);
       var twin = await deviceClient.GetTwinAsync();
 
-      TwinCollection reported = new TwinCollection();
-      reported["Owner"] = new {
-        personName = "owner",
-        birthday = DateTime.Now,
-        isValid = true
-      };
-      await deviceClient.UpdateReportedPropertiesAsync(reported);
+      //TwinCollection reported = new TwinCollection();
+      //reported["aDateTime"] = "1010-10-10T10:10";
+      //reported["aDate"] = "1010-10-10";
+      //await deviceClient.UpdateReportedPropertiesAsync(reported);
 
       await Task.Run(async () =>
       {
         while (!quitSignal.IsCancellationRequested)
         {
 
-          await deviceClient.SendEventAsync(
-            new Message(
-              Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-               new {
-                 People = new {
-                   personName = "rido",
-                   isValid = true,
-                   birthday = DateTime.Now.ToUniversalTime()
-                }
-               }
-               )))
-            {
-              ContentEncoding = "utf-8",
-              ContentType = "application/json"
-            });
+          //await deviceClient.SendEventAsync(
+          //  new Message(
+          //    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
+          //     new {
+          //       People = new {
+          //         personName = "rido",
+          //         isValid = true,
+          //         birthday = DateTime.Now.ToUniversalTime()
+          //      }
+          //     }
+          //     )))
+          //  {
+          //    ContentEncoding = "utf-8",
+          //    ContentType = "application/json"
+          //  });
 
-          logger.LogInformation("Sending Telemetry");
+          logger.LogInformation("Non Sending Telemetry");
           await Task.Delay(5000);
         }
       });
@@ -83,12 +73,12 @@ namespace Thermostat
       logger.LogWarning(req.Name);
       logger.LogWarning(req.DataAsJson);
 
-      Person p = JsonConvert.DeserializeObject<Person>(req.DataAsJson);
+      //Person p = JsonConvert.DeserializeObject<Person>(req.DataAsJson);
 
-      Person[] people = new[] {
-        new Person { birthday = DateTime.Now, isValid = true, personName ="rido"},
-        p
-      };
+      //Person[] people = new[] {
+      //  new Person { birthday = DateTime.Now, isValid = true, personName ="rido"},
+      //  p
+      //};
 
       var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("people"));
       return await Task.FromResult(new MethodResponse(constPayload, 200));
@@ -98,15 +88,27 @@ namespace Thermostat
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
       this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
-      Person person = GetPropertyValue<Person>(desiredProperties, "Delegate");
-      if (person != null)
+      var aDate = GetPropertyValue<DateTime>(desiredProperties, "aDate");
+      if (aDate != null)
       {
-        await AckDesiredPropertyReadAsync("Delegate", person, 200, "property synced", desiredProperties.Version);
+        await AckDesiredPropertyReadAsync("aDate", aDate, 200, "property synced", desiredProperties.Version);
       }
       else
       {
         logger.LogError("Cant parse desired props");
       }
+
+      var aDateTime = GetPropertyValue<DateTime>(desiredProperties, "aDateTime");
+      if (aDateTime != null)
+      {
+        await AckDesiredPropertyReadAsync("aDateTime", aDateTime, 200, "property synced", desiredProperties.Version);
+      }
+      else
+      {
+        logger.LogError("Cant parse desired props");
+      }
+
+
     }
 
     T GetPropertyValue<T>(TwinCollection collection, string propertyName)
@@ -114,8 +116,8 @@ namespace Thermostat
       T result = default(T);
       if (collection.Contains(propertyName))
       {
-        JObject propVal = collection[propertyName];
-        result = propVal.ToObject<T>();
+        JToken propVal = collection[propertyName];
+        result = propVal.Value<T>();
       }
       return result;
     }

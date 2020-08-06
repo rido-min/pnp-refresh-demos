@@ -16,14 +16,9 @@ using System.Threading.Tasks;
 namespace Thermostat
 {
 
-  public class Person
-  {
-    public string personName { get; set; }
-    public bool  isValid { get; set; }
-    public DateTime birthday { get; set; }
-  }
+  
 
-  class DatesTestDevice : IRunnableWithConnectionString
+  class MyCertifiedDeviceSimulator : IRunnableWithConnectionString
   {
     const string modelId = "dtmi:com:rido:myTestDevice;1";
     
@@ -86,7 +81,7 @@ namespace Thermostat
       Person p = JsonConvert.DeserializeObject<Person>(req.DataAsJson);
 
       Person[] people = new[] {
-        new Person { birthday = DateTime.Now, isValid = true, personName ="rido"},
+        new Person() { birthday = DateTime.Now, isValid = true, personName ="rido"},
         p
       };
 

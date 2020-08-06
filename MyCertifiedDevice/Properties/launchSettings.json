@@ -3,7 +3,7 @@
     "dps_pnp": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=myCertDevice;SharedAccessKey=wbkBhZ9afAOs0vbYtpUDx4SeeONP0wTebno5mwkSPOs="
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=test03;SharedAccessKey=vELQ1Vwmii9WBVd4q0e3ugIFWSyVBG+tqQ4ZX4PYAxg="
       }
     },
     "AICS": {
@@ -17,6 +17,14 @@
       "environmentVariables": {
         "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=53d74370-f8e6-4c1d-9c7e-269abd13d01e;SharedAccessKey=9erU4PLrbYHNDx+jWI/uWTEQJonSza2DXjnQ+NQxnxI="
       }
+    },
+    "DatesAICS": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=6cac8976-aa75-4973-89b6-d1c6f25477af;SharedAccessKey=TVe2Eh/XRKsTO2IMDZPFrV2yHP30VM7qLmf0ViIO90w="
+      }
     }
+
+    
   }
 }
