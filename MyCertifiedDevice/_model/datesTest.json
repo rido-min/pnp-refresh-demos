@@ -1,0 +1,20 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:com:rido:datestest;1",
+  "@type": "Interface",
+  "displayName": "Sample Device to tet dates",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "aDate",
+      "schema": "date",
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "aDateTime",
+      "schema": "dateTime",
+      "writable": true
+    }
+  ]
+}

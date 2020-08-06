@@ -23,7 +23,7 @@ namespace Thermostat
     public DateTime birthday { get; set; }
   }
 
-  class DatesTestDevice : IRunnableWithConnectionString
+  class MyCertifiedDeviceSimulator : IRunnableWithConnectionString
   {
     const string modelId = "dtmi:com:rido:myTestDevice;1";
     
