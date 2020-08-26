@@ -15,7 +15,7 @@
     "AICS-DPS": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=88ab4a8a-47a0-49e1-811b-edd5e7a38ed1;SharedAccessKey=8VqyEV8HsziRhzUMa83cFabeaYuRGb5Og9i6pb5lNZw="
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=951ce719-3032-49a9-bfaa-44777db9dfab;SharedAccessKey=WtdPtqPOvRXN8SJjj5VJwR2UfkeSttwewFhqTmLqHkM="
       }
     }
   }

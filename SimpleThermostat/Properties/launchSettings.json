@@ -9,7 +9,7 @@
     "AICS": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=6a5935c6-6e88-45d4-865e-deafadfe2b05;SharedAccessKey=A1CMqGAdRbRcqhxxiGgvLOwiy+f0yLhVh53IxqNTyjA="
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=4875bc94-dab8-4b2a-a79b-e9894fdc94bc;SharedAccessKey=LZ5pB96QGdW+lbW7X4zoXpXXCG7XVSZib9CpYpht/Pk="
       }
     },
     "CertCLI": {

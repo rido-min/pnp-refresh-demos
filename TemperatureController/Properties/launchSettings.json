@@ -11,6 +11,12 @@
     "pnp-smr-cnr": {
       "commandName": "Project",
       "commandLineArgs": "/DeviceConnectionString=\"HostName=rido-smr-01.azure-devices.net;DeviceId=tempctrler;SharedAccessKey=ejBhEuPtiijYik8SGHl0oMptFnzLIyypHzf5BQrvB9A=\""
+    },
+    "Cert-Test": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeId=0ne000C1EEA;DeviceId=dfca9efd-fbce-40c7-9c76-574b3b6eadf1;SharedAccessKey=Al8BThtOs9+8O20E7efClbZp7sPAwsnmwHTMneowDUo="
+      }
     }
   }
 }

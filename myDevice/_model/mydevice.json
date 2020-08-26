@@ -1,0 +1,61 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:com:example:mydevice;5",
+  "@type": "Interface",
+  "extends": "dtmi:com:example:base;2",
+  "displayName": "mydevice",
+  "contents": [
+    {
+      "@type": "Telemetry",
+      "name": "workingSet",
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "refreshInterval",
+      "schema": "integer",
+      "writable": true
+    },
+    { 
+       "@type" : "Component", 
+       "name" : "myinterface01", 
+       "schema" : "dtmi:com:example:interface;1" 
+    },
+    { 
+      "@type" : "Component", 
+      "name" : "myinterface02", 
+      "schema" : "dtmi:com:example:interface;1" 
+   },
+    {
+      "@type": "Command",
+      "name": "myComand",
+      "commandType": "synchronous",
+      "request": {
+        "name": "startTim",
+        "schema": "dateTime"
+      },
+      "response": {
+        "name": "cmdResult",
+        "schema": {
+          "@type": "Object",
+          "fields": [
+            {
+              "name": "aName",
+              "schema": "string"
+            },
+            {
+              "name": "aNumber",
+              "schema": "float"
+            },
+            {
+              "name": "aDate",
+              "schema": "dateTime"
+            }
+          ]
+        }
+      }
+
+    }
+
+  ]
+}

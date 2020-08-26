@@ -6,25 +6,11 @@
         "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=test03;SharedAccessKey=vELQ1Vwmii9WBVd4q0e3ugIFWSyVBG+tqQ4ZX4PYAxg="
       }
     },
-    "AICS": {
+    "AICS-Test": {
       "commandName": "Project",
       "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=6a5935c6-6e88-45d4-865e-deafadfe2b05;SharedAccessKey=A1CMqGAdRbRcqhxxiGgvLOwiy+f0yLhVh53IxqNTyjA="
-      }
-    },
-    "CertCLI": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=53d74370-f8e6-4c1d-9c7e-269abd13d01e;SharedAccessKey=9erU4PLrbYHNDx+jWI/uWTEQJonSza2DXjnQ+NQxnxI="
-      }
-    },
-    "DatesAICS": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=6cac8976-aa75-4973-89b6-d1c6f25477af;SharedAccessKey=TVe2Eh/XRKsTO2IMDZPFrV2yHP30VM7qLmf0ViIO90w="
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=5de9a524-a702-4a7e-b571-ff7da21d8834;SharedAccessKey=TcIvYz77a4zfi41tBq6re0B7bQzMZjjRjJs1/me809E="
       }
     }
-
-    
   }
 }

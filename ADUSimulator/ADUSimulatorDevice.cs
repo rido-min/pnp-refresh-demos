@@ -15,6 +15,23 @@ using System.Threading.Tasks;
 
 namespace ADUSimulator
 {
+
+  //var patch =
+  //          @"{
+  //              properties: {
+  //                desired: {
+  //                  Orchestrator: {
+  //                    Action: 332,
+  //                TargetVersion: 332,
+  //                Files: {
+  //                      aaaa: 'https://aka.ms.332',
+  //                 sdfa: 332
+  //                    },
+  //              ExpectedContentId: '332',
+  //              InstalledCriteria: '332'
+  //                }
+  //              }
+  //          }";
   public class Orchestrator
   {
     public int Action { get; set; }
@@ -39,7 +56,7 @@ namespace ADUSimulator
 
   class ADUSimulatorDevice : IRunnableWithConnectionString
   {
-    const string modelId = "dtmi:azureiot:AzureDeviceUpdateCore;1";
+    const string modelId = "dtmi:jose:AzureDeviceUpdateCore;1";
 
     ILogger logger;
     DeviceClient deviceClient;

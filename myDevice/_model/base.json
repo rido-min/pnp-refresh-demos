@@ -1,0 +1,14 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:com:example:base;2",
+    "@type": "Interface",
+    "displayName": "mybaseProp",
+    "contents": [ 
+        { 
+              "@type" : "Property", 
+             "name" : "baseSerialNumber", 
+             "schema" : "string" 
+        }
+    ]
+}
+  

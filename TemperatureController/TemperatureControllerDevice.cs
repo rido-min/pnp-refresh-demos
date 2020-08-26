@@ -42,12 +42,8 @@ namespace TemperatureController
       this.quitSignal = quitSignal;
       this.logger = logger;
 
-      pnpClient = await PnPClient.CreateFromDPSSasAndModelIdAsync(
-        "0ne000DE9FB",
-        "dn-st-05",
-        "sIvKXk0xXOA5w2iFuaMRlqT0ymcD7WTyN2E1IL9wWzc=",
-        modelId,
-        logger);
+      var deviceClient = await Rido.DeviceClientFactory.CreateDeviceClientAsync(connectionString, logger, modelId);
+      pnpClient = PnPClient.CreateFromDeviceClient(new PnPDeviceClient(deviceClient));
 
       await pnpClient.SetCommandHandlerAsync("reboot", root_RebootCommandHadler, this);
 

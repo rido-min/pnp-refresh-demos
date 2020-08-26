@@ -1,0 +1,14 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:com:example:interface;1",
+    "@type": "Interface",
+    "displayName": "minimal interface",
+    "contents": [
+        { 
+              "@type" : "Property", 
+             "name" : "serialNumber", 
+             "schema" : "string" 
+        }
+    ]
+}
+  

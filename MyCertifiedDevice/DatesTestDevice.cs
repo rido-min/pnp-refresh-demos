@@ -1,5 +1,4 @@
 ﻿using DeviceRunner;
-using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
@@ -7,8 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rido;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +31,9 @@ namespace Thermostat
       await deviceClient.SetMethodDefaultHandlerAsync(root_DefaultCommandHadler, null, quitSignal);
       var twin = await deviceClient.GetTwinAsync();
 
+      var reportADate = CreateAck("aDate", DateTime.Now, 200, 1);
+      await deviceClient.UpdateReportedPropertiesAsync(reportADate);
+
       //TwinCollection reported = new TwinCollection();
       //reported["aDateTime"] = "1010-10-10T10:10";
       //reported["aDate"] = "1010-10-10";
@@ -43,24 +43,7 @@ namespace Thermostat
       {
         while (!quitSignal.IsCancellationRequested)
         {
-
-          //await deviceClient.SendEventAsync(
-          //  new Message(
-          //    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(
-          //     new {
-          //       People = new {
-          //         personName = "rido",
-          //         isValid = true,
-          //         birthday = DateTime.Now.ToUniversalTime()
-          //      }
-          //     }
-          //     )))
-          //  {
-          //    ContentEncoding = "utf-8",
-          //    ContentType = "application/json"
-          //  });
-
-          logger.LogInformation("Non Sending Telemetry");
+          logger.LogInformation("not Sending Telemetry");
           await Task.Delay(5000);
         }
       });
@@ -73,14 +56,9 @@ namespace Thermostat
       logger.LogWarning(req.Name);
       logger.LogWarning(req.DataAsJson);
 
-      //Person p = JsonConvert.DeserializeObject<Person>(req.DataAsJson);
+      
 
-      //Person[] people = new[] {
-      //  new Person { birthday = DateTime.Now, isValid = true, personName ="rido"},
-      //  p
-      //};
-
-      var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject("people"));
+      var constPayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(DateTime.Now));
       return await Task.FromResult(new MethodResponse(constPayload, 200));
       
     }
@@ -107,8 +85,6 @@ namespace Thermostat
       {
         logger.LogError("Cant parse desired props");
       }
-
-
     }
 
     T GetPropertyValue<T>(TwinCollection collection, string propertyName)

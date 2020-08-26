@@ -1,6 +1,6 @@
 {
   "@context": "dtmi:dtdl:context;2",
-  "@id": "dtmi:azureiot:AzureDeviceUpdateCore;1",
+  "@id": "dtmi:jose:AzureDeviceUpdateCore;1",
   "@type": "Interface",
   "description": "Azure Device Update Core",
   "displayName": "Azure Device Update Core",

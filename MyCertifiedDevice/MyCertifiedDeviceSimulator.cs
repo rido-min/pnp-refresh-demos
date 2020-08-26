@@ -16,11 +16,9 @@ using System.Threading.Tasks;
 namespace Thermostat
 {
 
-  
-
   class MyCertifiedDeviceSimulator : IRunnableWithConnectionString
   {
-    const string modelId = "dtmi:com:rido:myTestDevice;1";
+    const string modelId = "dtmi:com:rido:myTestDevice2;3";
     
 
     ILogger logger;

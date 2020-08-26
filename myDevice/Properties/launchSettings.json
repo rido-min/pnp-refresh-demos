@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "dps_pnp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000DE9FB;DeviceId=dn-st-04;SharedAccessKey=xKo0QK24bYj26PiD0taAuPlhy9+7ypMF9WDk7+K0YEc="
+      }
+    },
+    "AICS-Test": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=b2a21667-cdf5-47bb-ad61-2e82d9329b72;SharedAccessKey=b9EtX/3L70s8TqBdqTXydJlJDvFueQXbd9zSffq1vUM="
+      }
+    }
+  }
+}
