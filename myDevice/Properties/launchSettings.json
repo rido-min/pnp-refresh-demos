@@ -11,6 +11,12 @@
       "environmentVariables": {
         "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=b2a21667-cdf5-47bb-ad61-2e82d9329b72;SharedAccessKey=b9EtX/3L70s8TqBdqTXydJlJDvFueQXbd9zSffq1vUM="
       }
+    },
+    "ridohub": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "HostName=ridohub.azure-devices.net;DeviceId=myDevice;SharedAccessKey=w7U+vC3OPFXIhk8ifswxzWfiYArKD4T8sHjsc9SMhik="
+      }
     }
   }
 }

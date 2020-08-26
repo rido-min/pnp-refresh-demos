@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PnPConvention
 {
   [ExcludeFromCodeCoverage]
-  internal class PnPDeviceClient : IPnPDeviceClient
+  public class PnPDeviceClient : IPnPDeviceClient
   {
     readonly DeviceClient client;
     readonly IPnPDeviceClient mockClient;

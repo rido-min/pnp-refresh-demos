@@ -20,7 +20,7 @@ namespace PnPConvention
     private PnPClient() { }
     private static readonly PnPClient instance = new PnPClient();
     private static IPnPDeviceClient deviceClient;
-    internal static PnPClient CreateFromDeviceClient(IPnPDeviceClient client)
+    public static PnPClient CreateFromDeviceClient(IPnPDeviceClient client)
     {
       deviceClient = client;
       deviceClient.SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback, deviceClient);

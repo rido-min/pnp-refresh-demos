@@ -33,11 +33,8 @@ namespace myDevice
 
       var reported = new TwinCollection();
       reported["serialNumber"] = serialNumber;
-      await deviceClient.UpdateReportedPropertiesAsync(reported);
-
-      var reportedBase = new TwinCollection();
       reported["baseSerialNumber"] = serialNumber;
-      await deviceClient.UpdateReportedPropertiesAsync(reportedBase);
+      await deviceClient.UpdateReportedPropertiesAsync(reported);
 
       var reportedInterface01 = new TwinCollection();
       reportedInterface01["myinterface01"] = new {
@@ -52,9 +49,6 @@ namespace myDevice
         serialNumber = serialNumber
       };
       await deviceClient.UpdateReportedPropertiesAsync(reportedInterface02);
-
-     
-
 
       await Task.Run(async () =>
       {
@@ -93,7 +87,7 @@ namespace myDevice
     }
     private async Task DesiredPropertyUpdateCallback(TwinCollection desiredProperties, object userContext)
     {
-      this.logger.LogTrace($"Received desired updates [{desiredProperties.ToJson()}]");
+      this.logger.LogWarning($"Received desired updates [{desiredProperties.ToJson()}]");
       var desiredPropertyValue = GetPropertyValue<long>(desiredProperties, "refreshInterval");
       if (desiredPropertyValue > 0)
       {
