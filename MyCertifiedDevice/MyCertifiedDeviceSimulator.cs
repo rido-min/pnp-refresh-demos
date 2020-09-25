@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Thermostat
+namespace MyCertifiedDevice
 {
 
   class MyCertifiedDeviceSimulator : IRunnableWithConnectionString
@@ -68,8 +68,6 @@ namespace Thermostat
         }
       });
     }
-
-
 
     private async Task<MethodResponse> root_DefaultCommandHadler(MethodRequest req, object ctx)
     {

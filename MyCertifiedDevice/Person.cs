@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Thermostat
+namespace MyCertifiedDevice
 {
   public class Person
   {

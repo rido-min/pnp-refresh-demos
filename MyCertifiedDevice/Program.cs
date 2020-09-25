@@ -1,13 +1,14 @@
 ﻿using DeviceRunner;
+using MyCertifiedDevice;
 using System.Threading.Tasks;
 
-namespace Thermostat
+namespace MyCertifiedDevice
 {
   class Program
   {
     public static async Task Main(string[] args)
     {
-      await ConsoleRunnerService<DatesTestDevice>.RunDeviceAsync(args);
+      await ConsoleRunnerService<MeshReproDevice>.RunDeviceAsync(args);
     }
   }
 }
