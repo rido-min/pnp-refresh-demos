@@ -1,5 +1,17 @@
 {
   "profiles": {
+    "MESH_Cert_TEst": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "ScopeID=0ne000C1EEA;DeviceId=ee282105-9b6f-4366-bdba-05f86f7a2fc3;SharedAccessKey=SDy/yURn76RQOlW2ev+VFo/3nQVrZa9sxdHWjFZt2FE="
+      }
+    },
+    "MESH_hub": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DeviceConnectionString": "HostName=ridohub.azure-devices.net;DeviceId=mesh;SharedAccessKey=FlXUgwaHagpoZNf7kAWsChYvhybxMDOiUuw1Uc/SsKI="
+      }
+    },
     "dps_pnp": {
       "commandName": "Project",
       "environmentVariables": {

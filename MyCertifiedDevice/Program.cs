@@ -1,5 +1,6 @@
 ﻿using DeviceRunner;
 using MyCertifiedDevice;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace MyCertifiedDevice
