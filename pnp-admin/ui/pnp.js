@@ -22,8 +22,8 @@ const deviceId = new URLSearchParams(window.location.search).get('deviceId')
         parseModel: async function (modelJson) {
           this.telemetryProps = modelJson.contents.filter(c => c['@type'].includes('Telemetry')).map(e => e)
           this.commands = modelJson.contents.filter(c => c['@type'] === 'Command').map(e => e)
-          this.desiredProps = modelJson.contents.filter(c => c['@type'] === 'Property' && c.writable === true).map(e => e)
-          const reported = modelJson.contents.filter(c => c['@type'] === 'Property' && (c.writable === false || c.writable === undefined)).map(e => e)
+          this.desiredProps = modelJson.contents.filter(c => c['@type'].includes('Property') && c.writable === true).map(e => e)
+          const reported = modelJson.contents.filter(c => c['@type'].includes('Property') && (c.writable === false || c.writable === undefined)).map(e => e)
           this.reportedProps = reported.concat(this.desiredProps)
         },
         runCommand: async function (cmdName) {
