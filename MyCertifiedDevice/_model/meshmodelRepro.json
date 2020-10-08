@@ -1,46 +1,13 @@
 {
   "@context": "dtmi:dtdl:context;2",
-  "@id": "dtmi:com:rido:MeshRepro;1",
+  "@id": "dtmi:com:rido:MeshRepro:point;1",
   "@type": "Interface",
   "displayName": "Sample Device to repro issues",
   "contents": [
     {
-      "@type": "Component",
-      "name": "adv_telem",
-      "schema": {
-        "@type": "Interface",
-        "@id": "dtmi:com:rido:MeshRepro:Location;1",
-        "contents": [
-          {
-            "@type": "Telemetry",
-            "name": "telWithPoint",
-            "schema": "point"
-          },
-          {
-            "@type": "Telemetry",
-            "name": "telWithArray",
-            "schema": {
-              "@type": "Array",
-              "elementSchema": "integer"
-            }
-          },
-          {
-            "@type": "Telemetry",
-            "name": "telWithMap",
-            "schema": {
-              "@type": "Map",
-              "mapKey": {
-                "name": "id",
-                "schema": "string"
-              },
-              "mapValue": {
-                "name": "mapValue",
-                "schema": "string"
-              }
-            }
-          }
-        ]
-      }
-    }
+      "@type": "Telemetry",
+      "name": "location",
+      "schema": "point"
+    }    
   ]
 }
