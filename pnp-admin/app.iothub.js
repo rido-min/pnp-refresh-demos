@@ -20,8 +20,7 @@ const getDeviceList = (connectionString, cb) => {
                               connectionState,
                               status,
                               properties.reported.[[$iotin:deviceinfo]].manufacturer.value as manufacturer
-                       from devices
-                       where capabilities.iotEdge != true`
+                       from devices`
   const query = registry.createQuery(queryText)
   query.nextAsTwin(async (err, devices) => {
     if (err) {

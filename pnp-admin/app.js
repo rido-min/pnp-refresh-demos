@@ -51,7 +51,7 @@ router.post('/connection-string', (req, res) => {
 })
 
 router.get('/getDevices', (req, res) => {
-  if (connectionString.length > 0) {
+  if (connectionString && connectionString.length > 0) {
     hub.getDeviceList(connectionString, list => res.json(list))
   } else {
     res.json({})
@@ -85,20 +85,21 @@ router.post('/invokeCommand', async (req, res) => {
 })
 
 const eventHubConsumerGroup = 'node-web-chart'
+console.log('starting eh read' + connectionString)
 const eventHubReader = new EventHubReader(connectionString, eventHubConsumerGroup)
 
 server.listen(port, () => console.log(`IoT Express app listening on port ${port}`))
 
 ;(async () => {
   await eventHubReader.startReadMessage((message, date, deviceId) => {
-    // console.log(deviceId)
-    // console.log(message.properties.reported.$metadata)
+     console.log(deviceId)
+     //console.log(message)
+     //if (message.properties && message.properties.reported) console.log(message.properties.reported.$metadata)
     const payload = {
       IotData: message,
       MessageDate: date || Date.now().toISOString(),
       DeviceId: deviceId
     }
-    // console.log(message)
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(payload))

@@ -76,6 +76,7 @@ async function convertIotHubToEventHubsConnectionString (connectionString) {
   })
 
   return new Promise((resolve, reject) => {
+    console.log('receiving...')
     receiver.on(ReceiverEvents.receiverError, (context) => {
       const error = context.receiver && context.receiver.error
       if (isAmqpError(error) && error.condition === 'amqp:link:redirect') {
