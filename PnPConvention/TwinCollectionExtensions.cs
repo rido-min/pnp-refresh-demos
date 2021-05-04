@@ -1,5 +1,8 @@
 ﻿using Microsoft.Azure.Devices.Shared;
+using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace PnPConvention
@@ -14,7 +17,14 @@ namespace PnPConvention
       {
         if (!item.Key.StartsWith("$"))
         {
-          result.Add(item.Key);
+          if (item.Value.Type == JTokenType.Object)
+          {
+            var el = item.Value as JObject;
+            if (CheckComponentFlag(el, item.Key))
+            {
+              result.Add(item.Key);
+            }
+          }
         }
       }
       return result;
@@ -22,7 +32,15 @@ namespace PnPConvention
 
     public static JObject GetOrCreateComponent(this TwinCollection collection, string componentName)
     {
-      if (!collection.Contains(componentName))
+      if (collection.Contains(componentName))
+      {
+        var component = collection[componentName] as JObject;
+        //if (!CheckComponentFlag(component, componentName))
+        //{
+        //  return null;
+        //}  
+      }
+      else
       {
         JToken flag = JToken.Parse("{\"__t\" : \"c\"}");
         collection[componentName] = flag;
@@ -47,6 +65,10 @@ namespace PnPConvention
       if (collection.Contains(componentName))
       {
         var componentJson = collection[componentName] as JObject;
+        if (!CheckComponentFlag(componentJson, componentName))
+        {
+          throw new Exception($"The twin {componentName} does nor includes the PnP convention marker");
+        }
         if (componentJson.ContainsKey(propertyName))
         {
           var propertyJson = componentJson[propertyName] as JObject;
@@ -60,7 +82,7 @@ namespace PnPConvention
           }
           else
           {
-            var propValue = componentJson[propertyName];
+            var propValue = componentJson[propertyName] as JToken;
             result = propValue.Value<T>();
           }
         }
@@ -103,7 +125,7 @@ namespace PnPConvention
         var flag = component["__t"];
         if (flag.Value<string>() != "c")
         {
-          // throw new Exception($"Component {componentName} does not have the expected '__t' value");
+          throw new Exception($"Component {componentName} does not have the expected '__t' value");
           return false;
         }
       }

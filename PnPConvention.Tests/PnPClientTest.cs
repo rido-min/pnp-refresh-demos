@@ -45,14 +45,13 @@ namespace PnPConvention.Tests
     }
 
     [Fact]
-    public async Task ComponentReadDesiredProperties_ReturnsValue_If_FlagNotFound()
+    public async Task ComponentReadDesiredProperties_RaisesException_If_FlagNotFound()
     {
       TwinProperties desiredProps = new TwinProperties();
       desiredProps.Desired = new TwinCollection(@"{c1: { prop1: { value: 'val1'}}}");
       Twin desired = new Twin(desiredProps);
       mockClient.DesiredProperties = desired;
-      var result = await pnpClient.ReadDesiredComponentPropertyAsync<string>("c1", "prop1");
-      Assert.Equal("val1", result);
+      await Assert.ThrowsAsync<Exception>(() => pnpClient.ReadDesiredComponentPropertyAsync<string>("c1", "prop1"));
     }
 
 
@@ -129,9 +128,9 @@ namespace PnPConvention.Tests
         valueReaded = newValue.ToJson();
       });
 
-      TwinCollection desired = new TwinCollection(@"{ c1: {prop1: 'val1'}}");
+      TwinCollection desired = new TwinCollection(@"{ c1: { __t: 'c',prop1: 'val1'}}");
       await mockClient.DesiredPropertyUpdateCallback(desired, this);
-      Assert.Equal("{\"c1\":{\"prop1\":\"val1\"}}", valueReaded);
+      Assert.Equal("{\"c1\":{\"__t\":\"c\",\"prop1\":\"val1\"}}", valueReaded);
     }
 
     [Fact]
