@@ -25,7 +25,7 @@
     "live-plugin-manager": "^0.14.1",
     "moment": "^2.27.0",
     "replace-string": "^3.1.0",
-    "ws": "^7.3.1"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.23",
